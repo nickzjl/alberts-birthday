@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#12062a" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="description" content="Albert's Birthday Brainrot Simulator — a ridiculous, interactive birthday experience." />
+    <!-- private, unlisted page: keep it out of search engines and don't leak its URL to other sites -->
+    <meta name="robots" content="noindex, nofollow, noarchive, noimageindex" />
+    <meta name="referrer" content="no-referrer" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Albert's Birthday Brainrot Simulator" />
+    <meta property="og:description" content="Roast Cartman, out-tire Tung Tung Tung Sahur and open Peter's present. Happy birthday, Albert." />
+    <!-- absolute URL when VITE_SITE_ORIGIN is set (see .env.doppel) so chat apps can show the preview -->
+    <meta property="og:image" content="%VITE_SITE_ORIGIN%%BASE_URL%og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <title>Albert's Birthday Brainrot Simulator</title>
+    <!-- critical paint before the JS/CSS bundle arrives: no white flash on slow phones -->
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #12062a;
+        color: #c9b3ff;
+      }
+      .boot-loader {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-content: center;
+        justify-items: center;
+        gap: 14px;
+        background: radial-gradient(circle at 50% 40%, #3b1a7a 0%, #12062a 70%);
+        font: 600 18px/1 system-ui, sans-serif;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .boot-loader__brain {
+        font-size: 64px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div class="boot-loader" role="status" aria-live="polite">
+        <div class="boot-loader__brain" aria-hidden="true">🧠</div>
+        <div class="boot-loader__text">loading brainrot…</div>
+      </div>
+    </div>
+    <noscript>
+      <p style="position: fixed; inset: auto 0 24px; text-align: center; font: 16px system-ui, sans-serif; color: #e9e0ff">
+        Albert's brain needs JavaScript to run. Turn it on and reload.
+      </p>
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

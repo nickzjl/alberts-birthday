@@ -1,0 +1,121 @@
+/*
+ * Design tokens — Albert's Birthday Brainrot Simulator
+ * One palette for the whole site: deep grape night + lavender, with loud meme accents.
+ */
+:root {
+  /* Grape night (backgrounds) */
+  --void: #0b0416;
+  --grape-950: #12062a;
+  --grape-900: #1b0a3a;
+  --grape-800: #2a1158;
+  --grape-700: #3b1a7a;
+  --grape-600: #5326a8;
+  --grape-500: #6d36d6;
+
+  /* Lavender family (text, surfaces, glow) */
+  --violet: #8b4dff;
+  --lavender: #c9b3ff;
+  --lilac: #e9e0ff;
+  --mist: #f6f1ff;
+
+  /* Loud accents — use sparingly, one or two per moment */
+  --acid: #c8ff2e;
+  --hot: #ff3ea5;
+  --cyan: #38e8ff;
+  --sun: #ffd23f;
+  --tangerine: #ff8a2b;
+  --danger: #ff3b4e;
+
+  /* Ink (outlines, hard shadows) */
+  --ink: #0e0620;
+  --white: #ffffff;
+
+  /* Typography */
+  --font-display: 'Bowlby One', 'Arial Black', 'Helvetica Neue', system-ui, sans-serif;
+  --font-marker: 'Permanent Marker', 'Comic Sans MS', 'Marker Felt', cursive;
+  --font-body: 'Bricolage Grotesque Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-pixel: 'Press Start 2P', ui-monospace, 'SFMono-Regular', monospace;
+
+  /* Fluid type scale */
+  --fs-mega: clamp(3.2rem, 11vw, 10.5rem);
+  --fs-huge: clamp(2.4rem, 7vw, 6rem);
+  --fs-xl: clamp(1.8rem, 4.2vw, 3.4rem);
+  --fs-lg: clamp(1.3rem, 2.4vw, 2rem);
+  --fs-md: clamp(1.05rem, 1.5vw, 1.3rem);
+  --fs-sm: 0.92rem;
+  --fs-xs: 0.78rem;
+
+  /* Shape */
+  --radius-sm: 10px;
+  --radius: 18px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+  --border-chunky: 3px solid var(--ink);
+
+  /* Depth */
+  --shadow-hard: 0 6px 0 var(--ink);
+  --shadow-pop: 0 6px 0 var(--ink), 0 18px 34px rgba(5, 0, 15, 0.55);
+  --shadow-soft: 0 18px 50px rgba(5, 0, 15, 0.5);
+  --glow-violet: 0 0 24px rgba(139, 77, 255, 0.65), 0 0 70px rgba(139, 77, 255, 0.35);
+  --glow-acid: 0 0 20px rgba(200, 255, 46, 0.55), 0 0 60px rgba(200, 255, 46, 0.25);
+  --glow-hot: 0 0 20px rgba(255, 62, 165, 0.6), 0 0 60px rgba(255, 62, 165, 0.3);
+
+  /* Sticker treatment: white die-cut outline + soft drop shadow. Apply to an element wrapping an SVG/IMG. */
+  --sticker-filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff)
+    drop-shadow(0 -3px 0 #fff) drop-shadow(0 10px 14px rgba(6, 0, 20, 0.45));
+
+  /* Motion */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Layers */
+  --z-bg: 0;
+  --z-stage: 1;
+  --z-hud: 20;
+  --z-topbar: 40;
+  --z-player: 60;
+  --z-toast: 80;
+  --z-confetti: 90;
+  --z-transition: 100;
+
+  /* Layout */
+  --topbar-h: 64px;
+  --gutter: clamp(16px, 3vw, 32px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  /*
+   * Space the floating music player needs at the bottom of the screen.
+   * Desktop ≥1200px: player sits bottom-left, clear of centered docks → 0.
+   * Tablet 768–1199px: player could collide with a centered dock → reserve space.
+   * Mobile <768px: player lives in the top bar → 0.
+   */
+  --player-clearance: 0px;
+  /*
+   * Side space the player needs when it sits in a bottom corner as a small disc
+   * (landscape phones). Docks pad both sides with it so centered controls stay centered.
+   */
+  --player-side-clearance: 0px;
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+  :root {
+    --player-clearance: 84px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --topbar-h: 56px;
+  }
+}
+
+/* Landscape phones: every vertical pixel counts. Slimmer top bar; the player is a ~56px
+   disc docked bottom-left, so docks clear it sideways instead of reserving a whole row. */
+@media (orientation: landscape) and (max-height: 500px) {
+  :root {
+    --topbar-h: 52px;
+    --player-clearance: 0px;
+    --player-side-clearance: 76px;
+  }
+}

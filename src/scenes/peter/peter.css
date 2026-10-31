@@ -1,0 +1,289 @@
+/* =========================================================
+   Peter's present — stage, characters, bubble, dock
+   ========================================================= */
+/* things slide partly off-stage on purpose (the shoved present, wide poses): clip instead of
+   hidden so focus / scrollIntoView can never scroll the scene sideways */
+.pt-shell,
+.pt-shell .shell__backdrop {
+  overflow: clip;
+}
+.pt-shell .shell__dock {
+  pointer-events: none;
+}
+.pt-shell .shell__dock > * {
+  pointer-events: auto;
+}
+
+.pt-stage {
+  position: absolute;
+  inset: 0;
+  --ph: 400px;
+  --pw: 248px;
+  --gs: 296px;
+  --floor: 20px;
+  --bubble-max: 440px;
+}
+
+.pt-stage.is-offstage {
+  visibility: hidden;
+}
+
+.pt-floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--floor);
+  height: 0;
+}
+
+/* --- Peter --- */
+.pt-peter-pos {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 3;
+  width: var(--pw);
+  height: var(--ph);
+  margin-left: calc(var(--pw) / -2);
+  will-change: transform;
+}
+.pt-peter-rig {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+}
+
+/* music notes while he dances */
+.pt-notes {
+  position: absolute;
+  left: 50%;
+  top: 2%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.pt-notes span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--font-display);
+  font-size: calc(var(--ph) * 0.09);
+  color: var(--acid);
+  -webkit-text-stroke: 1.5px var(--ink);
+  opacity: 0;
+  animation: pt-note 1.9s var(--ease-out) infinite;
+}
+.pt-notes span:nth-child(2n) {
+  color: var(--hot);
+}
+.pt-notes span:nth-child(3n) {
+  color: var(--cyan);
+}
+@keyframes pt-note {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(-10deg) scale(0.6);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(var(--ph) * 0.22), calc(var(--ph) * -0.32)) rotate(20deg) scale(1.15);
+  }
+}
+.pt-notes span:nth-child(odd) {
+  animation-name: pt-note-l;
+}
+@keyframes pt-note-l {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(10deg) scale(0.6);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(var(--ph) * -0.24), calc(var(--ph) * -0.28)) rotate(-20deg) scale(1.15);
+  }
+}
+
+/* --- the present --- */
+.pt-gift-pos {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 2;
+  width: var(--gs);
+  height: var(--gs);
+  margin-left: calc(var(--gs) / -2);
+  will-change: transform;
+}
+
+/* spotlight on the present */
+.pt-spot {
+  position: absolute;
+  left: 50%;
+  bottom: 2%;
+  width: calc(var(--gs) * 1.9);
+  height: calc(var(--ph) * 2.2);
+  translate: -50% 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.8s var(--ease-out);
+  background: linear-gradient(to bottom, rgba(233, 224, 255, 0) 0%, rgba(233, 224, 255, 0.07) 55%, rgba(233, 224, 255, 0.16) 100%);
+  clip-path: polygon(41% 0, 59% 0, 100% 100%, 0 100%);
+}
+.pt-spot::after {
+  content: '';
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: -3%;
+  height: 12%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(233, 224, 255, 0.28), rgba(233, 224, 255, 0) 70%);
+}
+.pt-spot.is-on {
+  opacity: 1;
+}
+.pt-shell--opening .pt-spot.is-on {
+  opacity: 1;
+  background: linear-gradient(to bottom, rgba(233, 224, 255, 0) 0%, rgba(233, 224, 255, 0.12) 55%, rgba(233, 224, 255, 0.26) 100%);
+}
+
+/* --- speech bubble placement --- */
+.pt-bubble-anchor {
+  position: absolute;
+  left: 0;
+  z-index: 6;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.pt-bubble-anchor--top {
+  bottom: calc(var(--floor) + var(--ph) + 28px);
+}
+.pt-bubble-anchor--side {
+  bottom: calc(var(--floor) + var(--ph) * 0.9);
+}
+.pt-bubble-wrap {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: max-content;
+  max-width: min(var(--bubble-max), calc(100vw - 20px));
+}
+.pt-bubble-anchor--side .pt-bubble-wrap {
+  translate: -100% 50%;
+}
+.bubble.pt-bubble {
+  max-width: min(var(--bubble-max), calc(100vw - 20px));
+  pointer-events: auto;
+}
+/* top bubble: the tail tracks his head (--tail-x is set from JS) and it pops out of it */
+.pt-bubble-anchor--top .bubble.pt-bubble {
+  transform-origin: calc(var(--tail-x, 28px) + 14px) 100%;
+}
+.pt-bubble-anchor--top .bubble.pt-bubble::before {
+  left: var(--tail-x, 28px);
+}
+.pt-bubble-anchor--top .bubble.pt-bubble::after {
+  left: calc(var(--tail-x, 28px) + 4px);
+}
+.pt-bubble-anchor--side .bubble.pt-bubble {
+  /* --pop-x / --pop-y move the pop origin off the tail near the stage's left / top edge (JS) */
+  transform-origin: var(--pop-x, 100%) var(--pop-y, 50%);
+}
+
+/* comic bursts: long words shrink to stay inside the star */
+.pt-burst .burst__text {
+  scale: var(--fit, 1);
+}
+
+/* --- dock --- */
+.pt-dock {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-height: 98px;
+  align-content: end;
+  width: 100%;
+}
+.pt-dock__note {
+  font-family: var(--font-marker);
+  font-size: clamp(0.82rem, 1.3vw, 1rem);
+  color: var(--lavender);
+  text-align: center;
+  text-shadow: 0 2px 0 var(--ink);
+  min-height: 1.4em;
+}
+.pt-dock__cta {
+  display: flex;
+  justify-content: center;
+  min-height: 64px;
+  align-items: center;
+}
+/* the button pops up out of the dock (never below the screen edge) */
+.pt-cta-wrap,
+.pt-cta-pop {
+  transform-origin: 50% 100%;
+}
+.pt-cta .bb__face {
+  white-space: normal;
+  text-align: center;
+  min-height: 52px;
+}
+.pt-cta.is-final::after {
+  /* pulsing halo: this is the one that actually works */
+  content: '';
+  position: absolute;
+  inset: -8px -10px -2px;
+  border-radius: var(--radius-pill);
+  border: 3px solid var(--acid);
+  opacity: 0;
+  pointer-events: none;
+  animation: pt-halo-ring 1.4s var(--ease-out) infinite;
+}
+@keyframes pt-halo-ring {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.14);
+  }
+}
+.pt-cta.is-busy .bb__face {
+  filter: saturate(0.6) brightness(0.92);
+}
+
+@media (max-width: 639px) {
+  .pt-dock {
+    min-height: 88px;
+  }
+  .pt-dock__cta {
+    min-height: 58px;
+  }
+}
+
+/* landscape phones (the shared shell already slims the header and docks the player as a
+   bottom-left disc, padding the dock sideways): every pixel of height goes to the stage */
+@media (orientation: landscape) and (max-height: 500px) {
+  .pt-shell .shell__dock {
+    padding-top: 2px;
+    padding-bottom: calc(8px + var(--safe-bottom));
+  }
+  .pt-dock {
+    min-height: 0;
+    gap: 0;
+  }
+  .pt-dock__note {
+    font-size: 0.82rem;
+  }
+  .pt-dock__cta {
+    min-height: 56px;
+  }
+}

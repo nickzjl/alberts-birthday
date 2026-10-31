@@ -1,0 +1,527 @@
+/* =========================================================
+   App frame
+   ========================================================= */
+.app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.app__stage {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-stage);
+  will-change: transform;
+}
+/* focused programmatically after a scene change (so Tab continues inside the new scene) — no ring */
+.app__stage:focus {
+  outline: none;
+}
+
+/* =========================================================
+   Ambient background
+   ========================================================= */
+.ambient {
+  --blob-a: #6d36d6;
+  --blob-b: #ff3ea5;
+  --blob-c: #38e8ff;
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-bg);
+  overflow: hidden;
+  background:
+    radial-gradient(120% 80% at 50% 0%, #2a1158 0%, rgba(27, 10, 58, 0) 60%),
+    radial-gradient(90% 70% at 50% 110%, #3b1a7a 0%, rgba(18, 6, 42, 0) 70%),
+    var(--grape-950);
+  pointer-events: none;
+}
+.ambient--cartman {
+  --blob-a: #7a2bd6;
+  --blob-b: #ff3b4e;
+  --blob-c: #5aa8ff;
+}
+.ambient--tung {
+  --blob-a: #6d36d6;
+  --blob-b: #ff8a2b;
+  --blob-c: #ffd23f;
+}
+.ambient--peter {
+  --blob-a: #6d36d6;
+  --blob-b: #38e8ff;
+  --blob-c: #c8ff2e;
+}
+.ambient__blob {
+  position: absolute;
+  width: 55vmax;
+  height: 55vmax;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.32;
+  mix-blend-mode: screen;
+  transition: background-color 1.2s var(--ease-out);
+  will-change: transform;
+}
+.ambient__blob--a {
+  background: var(--blob-a);
+  top: -20vmax;
+  left: -15vmax;
+  animation: blob-drift-a 22s ease-in-out infinite alternate;
+}
+.ambient__blob--b {
+  background: var(--blob-b);
+  bottom: -25vmax;
+  right: -18vmax;
+  opacity: 0.22;
+  animation: blob-drift-b 26s ease-in-out infinite alternate;
+}
+.ambient__blob--c {
+  background: var(--blob-c);
+  top: 30%;
+  left: 55%;
+  width: 30vmax;
+  height: 30vmax;
+  opacity: 0.12;
+  animation: blob-drift-c 18s ease-in-out infinite alternate;
+}
+/* the three experiences paint opaque backdrops over the whole ambient layer: don't animate what nobody sees */
+.ambient:not(.ambient--landing) .ambient__blob {
+  animation-play-state: paused;
+}
+@keyframes blob-drift-a {
+  to {
+    transform: translate(18vw, 14vh) scale(1.15);
+  }
+}
+@keyframes blob-drift-b {
+  to {
+    transform: translate(-16vw, -10vh) scale(0.9);
+  }
+}
+@keyframes blob-drift-c {
+  to {
+    transform: translate(-30vw, 10vh) scale(1.3);
+  }
+}
+.ambient__grid {
+  position: absolute;
+  inset: -2px;
+  background-image:
+    linear-gradient(rgba(201, 179, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201, 179, 255, 0.055) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, #000 30%, transparent 85%);
+}
+.ambient__grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.09;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  mix-blend-mode: overlay;
+}
+.ambient__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 85% 75% at 50% 45%, transparent 55%, rgba(6, 0, 18, 0.65) 100%);
+}
+
+/* =========================================================
+   Top bar
+   ========================================================= */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-topbar);
+  height: calc(var(--topbar-h) + var(--safe-top));
+  padding: var(--safe-top) var(--gutter) 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: linear-gradient(to bottom, rgba(18, 6, 42, 0.85), rgba(18, 6, 42, 0));
+  transition: opacity 0.9s var(--ease-out);
+}
+/* calm mode (birthday video): fade almost away; hover / keyboard focus brings it back */
+.topbar--calm {
+  opacity: 0.12;
+}
+.topbar--calm:hover,
+.topbar--calm:focus-within {
+  opacity: 1;
+  transition-duration: 0.25s;
+}
+@media (hover: none) {
+  /* no hover to reveal it on touch screens: don't let a stray tap leave the video */
+  .topbar--calm {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+.topbar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px 6px 6px;
+  border: 2.5px solid var(--ink);
+  border-radius: var(--radius-pill);
+  background: var(--grape-800);
+  box-shadow: 0 3px 0 var(--ink);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--lilac);
+  transition: transform 0.2s var(--ease-spring);
+  min-width: 0;
+}
+@media (hover: hover) {
+  .topbar__brand:hover:not([aria-disabled='true']) {
+    transform: rotate(-2deg) scale(1.03);
+  }
+}
+.topbar__brand:active:not([aria-disabled='true']) {
+  transform: scale(0.95);
+  transition-duration: 0.06s;
+}
+.topbar__brand:focus-visible,
+.chap:focus-visible {
+  outline: 3px solid var(--acid);
+  outline-offset: 3px;
+  border-radius: var(--radius-pill);
+}
+.topbar [aria-disabled='true'] {
+  cursor: progress;
+}
+.topbar__brain {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--hot);
+  font-size: 17px;
+  border: 2px solid var(--ink);
+}
+.topbar__name-short {
+  display: none;
+}
+.topbar__chapters {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.chap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 38px;
+  padding: 0 12px 0 5px;
+  border: 2.5px solid var(--ink);
+  border-radius: var(--radius-pill);
+  background: rgba(42, 17, 88, 0.85);
+  color: var(--lavender);
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 0 3px 0 var(--ink);
+  isolation: isolate;
+  transition: transform 0.15s var(--ease-spring), color 0.2s;
+}
+/* ≥44px touch target without making the pill visually bigger */
+.chap::before,
+.topbar__brand::before {
+  content: '';
+  position: absolute;
+  inset: -6px -2px;
+}
+.topbar__brand {
+  position: relative;
+}
+@media (hover: hover) {
+  .chap:hover:not([aria-disabled='true']):not(.chap--active) {
+    transform: translateY(-2px);
+    color: var(--white);
+  }
+}
+.chap:active:not([aria-disabled='true']):not(.chap--active) {
+  transform: translateY(2px) scale(0.96);
+  box-shadow: 0 1px 0 var(--ink);
+  transition-duration: 0.06s;
+}
+.chap--active {
+  cursor: default;
+}
+.chap__num {
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  background: var(--grape-600);
+  color: var(--white);
+  font-size: 0.72rem;
+}
+.chap--done .chap__num {
+  background: var(--acid);
+  color: var(--ink);
+}
+.chap--active {
+  color: var(--ink);
+}
+.chap--active .chap__num {
+  background: var(--ink);
+  color: var(--acid);
+}
+.chap__check {
+  display: inline-block;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+/* finished the chapter you're in: the number flips to a ✓ (with a pop) and gets an acid ring */
+.chap--active.chap--done .chap__num {
+  box-shadow: 0 0 0 2px var(--acid), 0 0 10px rgba(200, 255, 46, 0.8);
+}
+/* all three done: one shine sweeps across the pills, left to right */
+.topbar--complete .chap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.8) 50%, transparent 62%) no-repeat;
+  background-size: 300% 100%;
+  animation: chap-shine 0.9s var(--ease-out) 0.5s both;
+}
+.topbar--complete li:nth-child(2) .chap::after {
+  animation-delay: 0.62s;
+}
+.topbar--complete li:nth-child(3) .chap::after {
+  animation-delay: 0.74s;
+}
+@keyframes chap-shine {
+  from {
+    background-position: 100% 0;
+    opacity: 1;
+  }
+  to {
+    background-position: 0% 0;
+    opacity: 0;
+  }
+}
+.chap__glow {
+  position: absolute;
+  inset: -2.5px;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--acid);
+  border: 2.5px solid var(--ink);
+}
+
+@media (max-width: 860px) {
+  .topbar__name-long {
+    display: none;
+  }
+  .topbar__name-short {
+    display: inline;
+  }
+}
+@media (max-width: 767px) {
+  .topbar {
+    padding-right: calc(var(--gutter) + 52px);
+    gap: 8px;
+  }
+  .topbar__brand {
+    padding: 5px;
+  }
+  .topbar__name {
+    display: none;
+  }
+  .chap {
+    height: 34px;
+    padding: 0 9px 0 4px;
+    font-size: 0.64rem;
+    gap: 5px;
+  }
+  .chap__num {
+    width: 22px;
+    height: 22px;
+  }
+}
+@media (max-width: 420px) {
+  .topbar__chapters {
+    gap: 5px;
+  }
+  .chap:not(.chap--active) .chap__label {
+    display: none;
+  }
+  .chap:not(.chap--active) {
+    padding: 0 5px;
+  }
+  /* number-only pills are ~37px wide: the invisible hit area reaches into the 5px gaps → ≥44px */
+  .chap::before {
+    inset: -6px -4px;
+  }
+}
+/* landscape phones: a slimmer bar (see --topbar-h) */
+@media (orientation: landscape) and (max-height: 500px) {
+  .topbar__brand {
+    padding: 4px 10px 4px 4px;
+  }
+  .chap {
+    height: 34px;
+  }
+}
+
+/* =========================================================
+   Brain wipe transition
+   ========================================================= */
+.wipe {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: -12vh;
+  height: 124vh;
+  z-index: var(--z-transition);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  pointer-events: all;
+}
+.wipe__drips {
+  width: 100%;
+  height: 12vh;
+  fill: var(--violet);
+  display: block;
+}
+.wipe__drips--top {
+  transform: scaleY(-1);
+}
+.wipe__body {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 0 var(--gutter);
+  margin: -2px 0;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.14), transparent 55%),
+    var(--violet);
+  text-align: center;
+  color: var(--ink);
+}
+.wipe__chip {
+  padding: 5px 12px 6px;
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-pill);
+  background: var(--acid);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  box-shadow: 0 4px 0 var(--ink);
+  rotate: -3deg;
+}
+.wipe__title {
+  max-width: 14ch;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, min(7vw, 11vh), 5.2rem);
+  line-height: 0.92;
+  text-transform: uppercase;
+  color: var(--white);
+  text-shadow:
+    0 3px 0 var(--grape-600),
+    0 6px 0 var(--ink);
+  text-wrap: balance;
+}
+.wipe__quip {
+  font-family: var(--font-marker);
+  font-size: clamp(1rem, 2vw, 1.35rem);
+  color: var(--ink);
+}
+.wipe__bar {
+  width: min(360px, 70vw);
+  height: 20px;
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-pill);
+  background: rgba(14, 6, 32, 0.35);
+  overflow: hidden;
+}
+.wipe__fill {
+  height: 100%;
+  background: repeating-linear-gradient(-45deg, var(--acid) 0 12px, #a6e01a 12px 24px);
+  transform-origin: 0 50%;
+}
+.wipe__pct {
+  font-family: var(--font-pixel);
+  font-size: 0.62rem;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.wipe__pct strong {
+  color: var(--white);
+}
+
+/* =========================================================
+   Loader + error
+   ========================================================= */
+.scene-loader {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--lavender);
+}
+.scene-loader__brain {
+  font-size: 56px;
+  animation: boot-wobble 0.8s ease-in-out infinite alternate;
+}
+.scene-error {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+}
+.scene-error__card {
+  max-width: 440px;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 28px 24px;
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-lg);
+  background: var(--grape-800);
+  box-shadow: var(--shadow-pop);
+  text-align: center;
+}
+.scene-error__card h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+.scene-error__card p {
+  color: var(--lavender);
+}
+.scene-error__emoji {
+  font-size: 56px;
+}
+.scene-error__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 6px;
+}

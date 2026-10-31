@@ -1,0 +1,1025 @@
+/* =========================================================
+   Landing — "ALBERT'S STARTER PACK"
+   ========================================================= */
+.landing {
+  --tick-h: 40px;
+  /* sticker unit + title unit */
+  --u: clamp(56px, 15.5vmin, 170px);
+  --t: min(5.4vw, 8.7vh);
+  --stk-line: 4px;
+  --stk-filter: drop-shadow(var(--stk-line) 0 0 #fff) drop-shadow(calc(var(--stk-line) * -1) 0 0 #fff)
+    drop-shadow(0 var(--stk-line) 0 #fff) drop-shadow(0 calc(var(--stk-line) * -1) 0 #fff)
+    drop-shadow(0 12px 14px rgba(6, 0, 20, 0.5));
+  /* measured by Landing.tsx (fallbacks for the first frame) */
+  --top-start: 40px;
+  --top-h: 160px;
+  --bot-start: 75%;
+  --bot-h: 160px;
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ---------- background: rays, halo, sparkles ---------- */
+.landing__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.landing__rays {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 170vmax;
+  height: 170vmax;
+  margin: -85vmax 0 0 -85vmax;
+  background: repeating-conic-gradient(from 0deg, rgba(201, 179, 255, 0.09) 0deg 6deg, transparent 6deg 16deg);
+  -webkit-mask-image: radial-gradient(circle, #000 0%, rgba(0, 0, 0, 0.55) 22%, transparent 48%);
+  mask-image: radial-gradient(circle, #000 0%, rgba(0, 0, 0, 0.55) 22%, transparent 48%);
+  animation: landing-spin 120s linear infinite;
+}
+.landing__halo {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  width: min(1200px, 130vw);
+  height: min(700px, 75vh);
+  translate: -50% -50%;
+  background: radial-gradient(closest-side, rgba(139, 77, 255, 0.42), rgba(255, 62, 165, 0.1) 62%, transparent);
+}
+.landing__spark {
+  position: absolute;
+  opacity: 0;
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+  animation: landing-spark 3s ease-in-out infinite;
+}
+@keyframes landing-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes landing-spark {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.2) rotate(0deg);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1) rotate(45deg);
+  }
+}
+
+/* ---------- ticker ---------- */
+.landing__ticker {
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding-top: var(--safe-top);
+  background: var(--ink);
+}
+.ticker {
+  display: flex;
+  height: var(--tick-h);
+  border-bottom: 3px solid var(--grape-600);
+  box-shadow: 0 8px 22px rgba(4, 0, 12, 0.45);
+  overflow: hidden;
+}
+.ticker__tag {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px 0 16px;
+  background: var(--hot);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+}
+.ticker__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--white);
+  animation: ticker-blink 1.1s steps(2, jump-none) infinite;
+}
+.ticker__viewport {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 3%, #000 95%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 3%, #000 95%, transparent);
+}
+.ticker__track {
+  display: flex;
+  width: max-content;
+  animation: ticker-roll 110s linear infinite;
+}
+.ticker__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9em;
+  padding-left: 1.6em;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  color: var(--lilac);
+  white-space: nowrap;
+}
+.ticker__star {
+  color: var(--acid);
+}
+@keyframes ticker-roll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes ticker-blink {
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* ---------- center column ---------- */
+.landing__center {
+  position: absolute;
+  inset: calc(var(--tick-h) + var(--safe-top)) 0 var(--safe-bottom);
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.landing__col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(8px, 1.8vh, 18px);
+  padding: 0 var(--gutter);
+  max-width: 100%;
+}
+
+/* starter-pack meme label */
+.pack {
+  position: relative;
+  z-index: 1;
+  padding: 0.42em 0.95em 0.44em;
+  border: 3px solid var(--ink);
+  background: var(--white);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 4px 0 var(--ink), 0 12px 24px rgba(6, 0, 20, 0.45);
+}
+.pack__tape {
+  position: absolute;
+  top: -0.5em;
+  width: 2.5em;
+  height: 0.95em;
+  background: rgba(201, 179, 255, 0.75);
+  border-left: 2px dashed rgba(255, 255, 255, 0.5);
+  border-right: 2px dashed rgba(255, 255, 255, 0.5);
+}
+.pack__tape--l {
+  left: -1em;
+  rotate: -30deg;
+}
+.pack__tape--r {
+  right: -1em;
+  rotate: 26deg;
+}
+
+/* ---------- title ---------- */
+.landing__title {
+  position: relative;
+  /* above the sticker layer: a sticker drifting with the cursor tucks behind the title & stamp
+     instead of covering them (a sticker being dragged lifts its whole layer, see below) */
+  z-index: 3;
+}
+.ttl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 0.9;
+  white-space: nowrap;
+}
+.ttl__row {
+  display: flex;
+  justify-content: center;
+  gap: 0.26em;
+  font-size: var(--t);
+}
+.ttl__row--name {
+  font-size: calc(var(--t) * 2.34);
+  margin-top: -0.03em;
+}
+.ttl__word {
+  display: inline-flex;
+}
+.ttl__l {
+  display: inline-block;
+  pointer-events: auto;
+  cursor: pointer;
+  transform-origin: 50% 85%;
+  animation: ttl-in 0.95s cubic-bezier(0.3, 0.7, 0.4, 1) var(--d, 0s) both;
+}
+.ttl__wave {
+  display: inline-block;
+  animation: ttl-wave 3.4s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.21s);
+}
+.ttl__glyph {
+  position: relative;
+  display: inline-block;
+  color: var(--mist);
+  -webkit-text-stroke: 0.05em var(--ink);
+  paint-order: stroke fill;
+  text-shadow:
+    0 0.02em 0 var(--lavender),
+    0.008em 0.04em 0 var(--violet),
+    0.014em 0.06em 0 var(--grape-600),
+    0.02em 0.08em 0 var(--grape-700),
+    0.026em 0.1em 0 var(--ink),
+    0.028em 0.115em 0 var(--ink),
+    0 0.16em 0.4em rgba(139, 77, 255, 0.55);
+  transform-origin: 50% 90%;
+  animation: ttl-hop 7.5s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.07s + 1.5s);
+}
+.ttl__albert .ttl__glyph {
+  color: var(--acid);
+  -webkit-text-stroke: 0.045em var(--ink);
+  text-shadow:
+    0.006em 0.018em 0 #93d400,
+    0.014em 0.036em 0 var(--hot),
+    0.022em 0.054em 0 var(--hot),
+    0.03em 0.07em 0 #b3156f,
+    0.036em 0.086em 0 var(--ink),
+    0.038em 0.098em 0 var(--ink),
+    0 0.12em 0.32em rgba(255, 62, 165, 0.45);
+}
+/* glint that sweeps across ALBERT */
+.ttl__albert .ttl__glyph::after {
+  content: attr(data-c);
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  background: linear-gradient(100deg, transparent 44%, rgba(255, 255, 255, 0.95) 50%, transparent 56%) no-repeat;
+  background-size: 400% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: ttl-shine 5s linear infinite;
+  animation-delay: calc(var(--i) * 0.07s + 1.3s);
+  pointer-events: none;
+}
+@keyframes ttl-in {
+  0% {
+    opacity: 0;
+    translate: 0 -120%;
+    scale: 0.35;
+    rotate: var(--tilt, 0deg);
+  }
+  28% {
+    opacity: 1;
+    translate: 0 8%;
+    scale: 1.18 0.84;
+    rotate: calc(var(--tilt, 0deg) * -0.2);
+  }
+  50% {
+    translate: 0 -12%;
+    scale: 0.92 1.1;
+    rotate: calc(var(--tilt, 0deg) * 0.1);
+  }
+  72% {
+    translate: 0 2%;
+    scale: 1.04 0.97;
+    rotate: 0deg;
+  }
+  100% {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+    rotate: 0deg;
+  }
+}
+@keyframes ttl-wave {
+  0%,
+  100% {
+    transform: translateY(2.5%) rotate(-1.4deg);
+  }
+  50% {
+    transform: translateY(-4.5%) rotate(1.4deg);
+  }
+}
+@keyframes ttl-hop {
+  0%,
+  84%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  87.5% {
+    transform: translateY(-18%) scale(0.94, 1.08);
+  }
+  91% {
+    transform: translateY(0) scale(1.1, 0.9);
+  }
+  94.5% {
+    transform: translateY(-3%) scale(0.98, 1.02);
+  }
+}
+@keyframes ttl-shine {
+  0% {
+    background-position: 100% 0;
+  }
+  24%,
+  100% {
+    background-position: 0% 0;
+  }
+}
+
+/* certified stamp */
+.seal {
+  position: absolute;
+  z-index: 2;
+  width: calc(var(--t) * 1.62);
+  aspect-ratio: 1;
+  /* tucked into the empty corner under the T's crossbar */
+  right: calc(var(--t) * -1.22);
+  bottom: calc(var(--t) * -1);
+  pointer-events: auto;
+}
+.seal__btn {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--ink);
+  /* die-cut white edge + drop shadow without a filter (a filter would re-raster the whole stamp) */
+  box-shadow:
+    0 0 0 3px #fff,
+    0 8px 10px 3px rgba(6, 0, 20, 0.5);
+}
+.seal__face,
+.seal__ring,
+.seal__spin {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.seal__ring {
+  border-radius: 50%;
+  pointer-events: none;
+}
+.seal__spin {
+  overflow: visible;
+  will-change: transform;
+  animation: landing-spin 16s linear infinite reverse;
+}
+.seal__fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* rotating subtitle */
+.sub {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  min-height: 2.5em;
+  max-width: min(40ch, 92vw);
+  margin: 0;
+  font-family: var(--font-marker);
+  font-size: clamp(1rem, 1.7vw, 1.42rem);
+  line-height: 1.22;
+  color: var(--lilac);
+  text-align: center;
+  perspective: 600px;
+  rotate: -1.5deg;
+  animation: sub-in 0.5s var(--ease-out) var(--sub-d, 0.65s) both;
+}
+@keyframes sub-in {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+    scale: 0.92;
+  }
+}
+.sub__line {
+  /* outgoing + incoming lines share one cell, so they cross-flip without a gap */
+  grid-area: 1 / 1;
+  display: block;
+  text-shadow: 0 2px 0 var(--ink), 0 0 18px rgba(139, 77, 255, 0.6);
+  text-wrap: balance;
+}
+.sub__em {
+  font-style: normal;
+  color: var(--acid);
+}
+.sub__nb {
+  white-space: nowrap;
+}
+
+/* CTA */
+.cta {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  justify-items: center;
+  gap: clamp(8px, 1.4vh, 14px);
+  pointer-events: auto;
+}
+.cta__btn {
+  position: relative;
+}
+.cta__glow {
+  position: absolute;
+  inset: -40% -18%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 62, 165, 0.6), rgba(255, 62, 165, 0.18) 60%, transparent);
+  animation: cta-glow 1.6s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+/* scale the xl button with the title so it never outgrows the composition */
+.cta .bb--xl {
+  font-size: clamp(1rem, calc(var(--t) * 0.42), 2rem);
+}
+.cta .bb__face {
+  box-shadow:
+    inset 0 3px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -5px 0 rgba(0, 0, 0, 0.14),
+    0 0 26px rgba(255, 62, 165, 0.55);
+}
+@keyframes cta-glow {
+  from {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+.hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--font-marker);
+  font-size: clamp(0.9rem, 1.3vw, 1.08rem);
+  color: var(--lavender);
+  rotate: -1.5deg;
+}
+.hint__done {
+  color: var(--acid);
+}
+.hint__count {
+  padding: 5px 7px 4px;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  background: var(--grape-800);
+  color: var(--acid);
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  line-height: 1;
+  box-shadow: 0 2px 0 var(--ink);
+}
+.hint__count.is-done {
+  background: var(--acid);
+  color: var(--ink);
+}
+
+/* ---------- stickers ---------- */
+.landing__stickers {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.landing__stickers.is-dragging {
+  z-index: 5;
+}
+.stk {
+  position: absolute;
+  left: var(--x, 50%);
+  top: var(--y, 50%);
+  width: calc(var(--u) * var(--w, 1));
+  aspect-ratio: var(--ar);
+  translate: -50% -50%;
+}
+.stk__par,
+.stk__float,
+.stk__in,
+.stk__btn,
+.stk__tilt,
+.stk__act,
+.stk__squash,
+.stk__art {
+  width: 100%;
+  height: 100%;
+}
+.stk__float {
+  animation: stk-float var(--fd, 5.2s) ease-in-out infinite alternate;
+  animation-delay: calc(var(--i) * -1.3s);
+}
+.stk__btn {
+  position: relative;
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 22px;
+  background: none;
+  cursor: grab;
+  touch-action: none;
+  /* only the painted art is clickable (see .stk-svg) */
+  pointer-events: none;
+}
+.stk__btn:focus-visible {
+  outline: 3px dashed var(--acid);
+  outline-offset: 8px;
+}
+.stk__tilt {
+  transform: rotate(var(--r, 0deg));
+}
+.stk__act {
+  transform-origin: 50% 75%;
+}
+.stk__squash {
+  transform-origin: 50% 88%;
+}
+.stk__art {
+  filter: var(--stk-filter);
+}
+.stk-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.stk-svg * {
+  pointer-events: visiblePainted;
+}
+.stk-svg text {
+  pointer-events: none;
+}
+.stk-font {
+  font-family: var(--font-display);
+}
+.stk__fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+@keyframes stk-float {
+  from {
+    transform: translate3d(0, -3.5%, 0) rotate(-2.5deg);
+  }
+  to {
+    transform: translate3d(0, 3.5%, 0) rotate(2.5deg);
+  }
+}
+
+/* animated sub-parts of the sticker art */
+.can-tab {
+  transform-box: fill-box;
+  transform-origin: 85% 50%;
+}
+.can-lid,
+.tf-top,
+.gt-strings,
+.gl-left,
+.gl-right {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+.pk-lid {
+  transform-box: fill-box;
+  transform-origin: 0% 100%;
+}
+.rec-vinyl,
+.rec-cd {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+}
+.gm-vein {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  opacity: 0;
+}
+.stk--guitar .stk__act {
+  transform-origin: 50% 95%;
+}
+
+/* per-sticker float speeds */
+.stk--ghost {
+  --fd: 4.6s;
+}
+.stk--gorilla {
+  --fd: 5.4s;
+}
+.stk--records {
+  --fd: 6.2s;
+}
+.stk--piano {
+  --fd: 5.8s;
+}
+.stk--guitar {
+  --fd: 4.9s;
+}
+.stk--monster {
+  --fd: 5.1s;
+}
+.stk--trufru {
+  --fd: 4.4s;
+}
+.stk--gloves {
+  --fd: 3.9s;
+}
+
+/* ---------- wide layout: stickers orbit the title ---------- */
+.stk--ghost {
+  --x: 13%;
+  --y: 29%;
+  --w: 0.8;
+  --r: -10deg;
+}
+.stk--records {
+  --x: 28%;
+  --y: 15%;
+  --w: 1.06;
+  --r: 8deg;
+}
+.stk--guitar {
+  --x: 6.5%;
+  --y: 64%;
+  --w: 0.72;
+  --r: -24deg;
+}
+.stk--trufru {
+  --x: 20%;
+  --y: 79%;
+  --w: 0.98;
+  --r: 7deg;
+}
+.stk--gorilla {
+  --x: 88.5%;
+  --y: 29%;
+  --w: 0.8;
+  --r: 9deg;
+}
+.stk--gloves {
+  --x: 70%;
+  --y: 14%;
+  --w: 1.18;
+  --r: -8deg;
+}
+.stk--piano {
+  --x: 91%;
+  --y: 63%;
+  --w: 1.32;
+  --r: 6deg;
+}
+.stk--monster {
+  --x: 79.5%;
+  --y: 80%;
+  --w: 0.76;
+  --r: -9deg;
+}
+
+/* the two bottom-left stickers never sink into the music pill (≈100px tall incl. its tag, plus
+   room for their pointer parallax) — on short laptop screens they get nudged up instead */
+.landing {
+  --lp-floor: 124px;
+}
+.stk--trufru,
+.stk--guitar {
+  top: min(var(--y), calc(100% - var(--lp-floor) - var(--u) * var(--w) / var(--ar) / 2));
+}
+@media (max-height: 500px), (max-width: 767px) {
+  /* landscape phones dock a small disc (clear of these two); phones keep it top-right */
+  .landing {
+    --lp-floor: 8px;
+  }
+}
+
+/* ---------- effects ---------- */
+.landing__fx {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  overflow: hidden;
+  pointer-events: none;
+}
+.landing__burst {
+  z-index: 9;
+}
+.lfx {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.lfx svg {
+  display: block;
+  overflow: visible;
+}
+.lfx-puff {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, #fff 0 42%, rgba(233, 224, 255, 0.85) 60%, rgba(233, 224, 255, 0) 72%);
+}
+.lfx-ghost__body {
+  width: 100%;
+  height: 100%;
+  animation: ghost-wob 0.55s ease-in-out infinite alternate;
+}
+.lfx-ghost__boo {
+  position: absolute;
+  left: 82%;
+  top: -18%;
+  padding: 0.12em 0.55em 0.2em;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px 999px 999px 4px;
+  background: var(--white);
+  color: var(--ink);
+  font-family: var(--font-marker);
+  font-size: clamp(14px, 1.3vw, 20px);
+  line-height: 1.1;
+  white-space: nowrap;
+  box-shadow: 0 3px 0 var(--ink);
+  animation: boo-pop 0.4s 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes ghost-wob {
+  from {
+    transform: translateX(-4%) rotate(-5deg);
+  }
+  to {
+    transform: translateX(4%) rotate(5deg);
+  }
+}
+@keyframes boo-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.2) rotate(-20deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(-6deg);
+  }
+}
+.lfx-pop {
+  font-family: var(--font-display);
+  color: var(--acid);
+  line-height: 1;
+  white-space: nowrap;
+  -webkit-text-stroke: 0.09em var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0 0.09em 0 var(--ink), 0 0 0.6em rgba(200, 255, 46, 0.45);
+}
+.lfx-pop--hot {
+  color: var(--hot);
+  text-shadow: 0 0.09em 0 var(--ink), 0 0 0.6em rgba(255, 62, 165, 0.5);
+}
+.lfx-pop--sun {
+  color: var(--sun);
+  font-size: clamp(14px, 1.4vw, 20px);
+  text-shadow: 0 0.09em 0 var(--ink), 0 0 0.6em rgba(255, 210, 63, 0.5);
+}
+.lfx-bubble {
+  border: 2px solid var(--white);
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, #fff 0 16%, rgba(255, 255, 255, 0.4) 28%, rgba(201, 179, 255, 0.18) 70%);
+  box-shadow: 0 0 0 1.5px rgba(14, 6, 32, 0.55);
+}
+.lfx-scribble {
+  font-family: var(--font-marker);
+  color: var(--cyan);
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: 0 2px 0 var(--ink), 0 0 14px rgba(56, 232, 255, 0.5);
+}
+.lfx-scribble--white {
+  color: var(--white);
+  text-shadow: 0 2px 0 var(--ink), 0 0 14px rgba(201, 179, 255, 0.7);
+}
+.lfx-ring {
+  width: 70px;
+  height: 70px;
+  border: 5px solid var(--hot);
+  border-radius: 50%;
+  box-shadow: 0 0 24px var(--hot), inset 0 0 18px var(--hot);
+}
+.lfx-berry {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.lfx-berry--dark {
+  background: radial-gradient(circle at 34% 30%, #a77459 0 11%, #4c2b1d 32%, #2a160e 85%);
+}
+.lfx-berry--white {
+  background: radial-gradient(circle at 34% 30%, #fff 0 16%, #fff0d8 38%, #dcc29c 88%);
+}
+.lfx-berry--blue {
+  background: radial-gradient(circle at 34% 30%, #d2d7ff 0 11%, #5a6ae2 36%, #2c3594 88%);
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+/* portrait (tablets & phones): stickers live in the free bands above and below the content */
+@media (max-aspect-ratio: 21/20) {
+  .landing {
+    --t: min(8.4vw, 6.2vh);
+    --u: clamp(52px, 15.5vmin, 150px);
+  }
+  .seal {
+    width: calc(var(--t) * 1.4);
+    right: calc(var(--t) * -0.45);
+    bottom: calc(var(--t) * -1);
+  }
+  .sub {
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+  }
+  .hint {
+    font-size: clamp(0.92rem, 2vw, 1.1rem);
+  }
+  .stk {
+    --bh: var(--top-h);
+    --bs: var(--top-start);
+    top: calc(var(--bs) + var(--bh) * var(--by, 0.5));
+    width: auto;
+    height: min(calc(var(--bh) * var(--bf, 0.82)), calc(var(--u) * var(--hf, 1.4)));
+  }
+  .stk--guitar,
+  .stk--trufru,
+  .stk--piano,
+  .stk--monster {
+    --bh: calc(var(--bot-h) - var(--safe-bottom) - var(--lp-clear, 0px));
+    --bs: var(--bot-start);
+  }
+  .stk--ghost {
+    --x: 12%;
+    --by: 0.52;
+    --hf: 1.5;
+  }
+  .stk--records {
+    --x: 36%;
+    --by: 0.44;
+    --hf: 1.18;
+  }
+  .stk--gloves {
+    --x: 63%;
+    --by: 0.5;
+    --hf: 1.06;
+  }
+  .stk--gorilla {
+    --x: 88%;
+    --by: 0.56;
+    --hf: 1.5;
+  }
+  .stk--guitar {
+    --x: 13%;
+    --by: 0.5;
+    --hf: 1.55;
+  }
+  .stk--trufru {
+    --x: 38%;
+    --by: 0.52;
+    --hf: 1.22;
+  }
+  .stk--piano {
+    --x: 64%;
+    --by: 0.48;
+    --hf: 1.02;
+  }
+  .stk--monster {
+    --x: 88%;
+    --by: 0.54;
+    --hf: 1.5;
+  }
+}
+
+/* tablets in portrait: the desktop music pill (≈100px tall incl. its tag) owns the bottom-left corner */
+@media (max-aspect-ratio: 21/20) and (min-width: 768px) and (min-height: 501px) {
+  .landing {
+    --lp-clear: 112px;
+  }
+}
+
+/* very short landscape screens (phones on their side): one-line joke, slimmer ticker */
+@media (max-height: 460px) and (min-aspect-ratio: 21/20) {
+  .landing__col {
+    gap: 6px;
+  }
+  .sub {
+    min-height: 1.3em;
+    max-width: min(66ch, 70vw);
+    font-size: 0.86rem;
+    line-height: 1.15;
+  }
+  .landing {
+    --tick-h: 30px;
+  }
+  /* the one-line joke runs as wide as the title: lift the stamp into the nook under the T */
+  .seal {
+    bottom: calc(var(--t) * 0.04);
+    right: calc(var(--t) * -1.32);
+  }
+  .ticker__item,
+  .ticker__tag {
+    font-size: 0.66rem;
+  }
+  /* the two top stickers hang just below the ticker instead of being sliced by it */
+  .stk--records,
+  .stk--gloves {
+    top: max(var(--y), calc(var(--tick-h) + var(--safe-top) + var(--u) * var(--w) / var(--ar) / 2 + 8px));
+  }
+}
+
+/* the mobile music disc lives in the top-right corner below 768px: the ticker stops short of it */
+@media (max-width: 767px) {
+  .landing__ticker {
+    right: 68px;
+    border-bottom-right-radius: 14px;
+    overflow: hidden;
+  }
+}
+
+/* phones: three-line title, smaller ticker */
+@media (max-width: 599px) {
+  .landing {
+    --tick-h: 32px;
+    --t: min(calc((100vw - 40px) / 5.75), 7.4vh);
+    --stk-line: 3px;
+  }
+  .ticker__tag {
+    padding: 0 18px 0 10px;
+    font-size: 0.66rem;
+  }
+  .ticker__item {
+    font-size: 0.7rem;
+  }
+  .ttl__row:not(.ttl__row--name) {
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .ttl__row--name {
+    font-size: calc(var(--t) * 1.32);
+  }
+  .seal {
+    width: calc(var(--t) * 1.02);
+    right: calc(var(--t) * -0.1);
+    top: calc(var(--t) * -0.42);
+    bottom: auto;
+  }
+  .cta .bb--xl {
+    font-size: clamp(0.98rem, 4.5vw, 1.22rem);
+  }
+  .cta .bb--xl .bb__face {
+    padding: 0.95em 1.25em 0.9em;
+  }
+  .sub {
+    font-size: clamp(0.92rem, 4vw, 1.1rem);
+    max-width: 30ch;
+  }
+  .pack {
+    font-size: 0.78rem;
+  }
+  .stk--gorilla {
+    --by: 0.62;
+  }
+}

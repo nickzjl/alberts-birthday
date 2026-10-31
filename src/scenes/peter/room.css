@@ -1,0 +1,416 @@
+/* =========================================================
+   Living room backdrop
+   ========================================================= */
+.pt-room {
+  --floor-y: 72%;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  overflow: clip;
+  background: var(--grape-950);
+}
+.pt-room__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  max-width: none;
+}
+.pt-room__wall {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 50% at 86% 42%, rgba(255, 236, 214, 0.1), rgba(255, 236, 214, 0) 70%),
+    radial-gradient(45% 40% at 12% 26%, rgba(201, 179, 255, 0.12), rgba(201, 179, 255, 0) 70%),
+    radial-gradient(circle at 50% 50%, rgba(201, 179, 255, 0.07) 0 1.5px, transparent 2px) 0 0 / 48px 48px,
+    repeating-linear-gradient(90deg, rgba(201, 179, 255, 0.04) 0 2px, transparent 2px 48px),
+    linear-gradient(180deg, #150728 0%, #21104a 50%, #2b1360 var(--floor-y));
+}
+.pt-room__moonbeam {
+  position: absolute;
+  left: 6%;
+  top: 22%;
+  width: 34%;
+  height: 74%;
+  background: linear-gradient(180deg, rgba(233, 224, 255, 0.09), rgba(233, 224, 255, 0.02) 70%, rgba(233, 224, 255, 0));
+  clip-path: polygon(0 0, 30% 0, 100% 100%, 40% 100%);
+  pointer-events: none;
+}
+.pt-room__window {
+  position: absolute;
+  left: 4%;
+  top: calc(var(--topbar-h) + 9%);
+  width: clamp(120px, 14vw, 240px);
+  aspect-ratio: 200 / 220;
+}
+.pt-room__moonglow {
+  animation: pt-moon 6s ease-in-out infinite alternate;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes pt-moon {
+  to {
+    opacity: 0.6;
+    transform: scale(1.12);
+  }
+}
+.pt-room__stars {
+  animation: pt-twinkle 2.8s steps(3) infinite alternate;
+}
+@keyframes pt-twinkle {
+  to {
+    opacity: 0.45;
+  }
+}
+.pt-room__floor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--floor-y);
+  bottom: 0;
+  background:
+    repeating-linear-gradient(180deg, rgba(14, 6, 32, 0) 0 30px, rgba(14, 6, 32, 0.45) 30px 32px),
+    repeating-linear-gradient(90deg, rgba(14, 6, 32, 0) 0 180px, rgba(14, 6, 32, 0.3) 180px 182px),
+    linear-gradient(180deg, #2c1452 0%, #1d0c38 60%, #140726 100%);
+}
+.pt-room__baseboard {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--floor-y) - 12px);
+  height: 14px;
+  background: linear-gradient(180deg, #4a2296, #3b1a7a);
+  border-top: 3px solid var(--ink);
+  border-bottom: 3px solid var(--ink);
+}
+.pt-room__rug {
+  position: absolute;
+  left: 50%;
+  bottom: 3%;
+  width: min(92vw, 1100px);
+  height: 13%;
+  translate: -50% 0;
+  opacity: 0.9;
+  max-width: none;
+}
+.pt-room__couch {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - var(--floor-y) - 4%);
+  width: clamp(300px, 42vw, 700px);
+  aspect-ratio: 520 / 210;
+  translate: -50% 0;
+  opacity: 0.92;
+}
+.pt-room__lamp {
+  position: absolute;
+  right: 6%;
+  bottom: calc(100% - var(--floor-y) - 3%);
+  height: clamp(220px, 46vh, 430px);
+  aspect-ratio: 120 / 420;
+}
+.pt-room__lampglow {
+  position: absolute;
+  left: 50%;
+  top: 14%;
+  width: 380%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 240, 220, 0.3) 0%, rgba(233, 224, 255, 0.12) 30%, rgba(233, 224, 255, 0) 65%);
+  animation: pt-lamp 4.5s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes pt-lamp {
+  to {
+    opacity: 0.75;
+  }
+}
+.pt-room__frames {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.pt-room__frame {
+  position: absolute;
+  opacity: 0.85;
+}
+/* the scene moves / hides the clock when it would hang right behind Peter's head (PeterScene placeDecor) */
+.pt-room__frame--clock {
+  left: var(--pt-clock-left, 27%);
+  top: var(--pt-clock-top, calc(var(--floor-y) - 40%));
+  visibility: var(--pt-clock-vis, visible);
+  width: clamp(44px, 5vw, 80px);
+}
+.pt-room__frame--chicken {
+  right: 27%;
+  top: calc(var(--floor-y) - 46%);
+  width: clamp(54px, 6vw, 96px);
+  rotate: 4deg;
+}
+.pt-room__bunting {
+  position: absolute;
+  left: -2%;
+  width: 104%;
+  top: calc(var(--topbar-h) - 8px);
+  height: clamp(38px, 6vh, 64px);
+  opacity: 0.6;
+  max-width: none;
+  transform-origin: 50% 0;
+  animation: pt-sway 5s ease-in-out infinite alternate;
+}
+@keyframes pt-sway {
+  from {
+    transform: rotate(-0.4deg);
+  }
+  to {
+    transform: rotate(0.4deg) translateY(2px);
+  }
+}
+
+/* hand-made banner (with a typo, fixed in marker) */
+.pt-room__banner {
+  position: absolute;
+  right: 3.5%;
+  top: calc(var(--topbar-h) + 15%);
+  width: clamp(250px, 27vw, 430px);
+  rotate: 3deg;
+  pointer-events: none;
+}
+.pt-room__banner-string {
+  position: absolute;
+  inset: 0 0 auto;
+  width: 100%;
+  height: 40px;
+  max-width: none;
+}
+.pt-room__banner-letters {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding-top: 4px;
+}
+.pt-room__flag {
+  --sag: calc(sin((var(--i) / (var(--n) - 1)) * 3.1416) * 15px);
+  display: grid;
+  place-items: center;
+  width: calc(100% / 19);
+  aspect-ratio: 0.8;
+  margin-top: var(--sag);
+  font-family: var(--font-display);
+  font-size: clamp(0.62rem, 1vw, 1rem);
+  color: var(--ink);
+  background: var(--lilac);
+  clip-path: polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%);
+  rotate: calc((var(--i) - 10) * 1.2deg);
+}
+.pt-room__flag:nth-child(3n) {
+  background: var(--lavender);
+}
+.pt-room__flag:nth-child(3n + 1) {
+  background: #ffc8e6;
+}
+.pt-room__flag.is-oops {
+  text-decoration: line-through 2px var(--danger);
+}
+.pt-room__banner-gap {
+  width: calc(100% / 38);
+}
+.pt-room__banner-fix {
+  position: absolute;
+  right: -2%;
+  top: -54%;
+  font-family: var(--font-marker);
+  font-size: clamp(0.9rem, 1.4vw, 1.3rem);
+  color: var(--acid);
+  rotate: -10deg;
+  text-shadow: 0 2px 0 var(--ink);
+}
+.pt-room__banner-fix::before {
+  content: '^';
+  position: absolute;
+  left: 20%;
+  bottom: -70%;
+  color: var(--acid);
+}
+
+.pt-room__balloons {
+  position: absolute;
+  left: 1.5%;
+  bottom: calc(100% - var(--floor-y) - 2%);
+  width: clamp(80px, 8.5vw, 140px);
+  aspect-ratio: 150 / 300;
+  transform-origin: 50% 100%;
+  animation: pt-balloons 4s ease-in-out infinite alternate;
+}
+@keyframes pt-balloons {
+  from {
+    transform: rotate(-2deg) translateY(0);
+  }
+  to {
+    transform: rotate(2.5deg) translateY(-8px);
+  }
+}
+
+/* --- disco mode --- */
+.pt-room__disco {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.pt-room__disco-lights {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.4s;
+  overflow: hidden;
+}
+.pt-room__disco-lights span {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  width: 34vmax;
+  aspect-ratio: 1;
+  margin: -17vmax 0 0 -17vmax;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--c) 34%, transparent) 0%, transparent 62%);
+  animation: pt-disco 3.5s ease-in-out infinite;
+  animation-delay: var(--d);
+  animation-play-state: paused;
+}
+.pt-room__disco.is-on .pt-room__disco-lights {
+  opacity: 1;
+}
+.pt-room__disco.is-on .pt-room__disco-lights span {
+  animation-play-state: running;
+}
+@keyframes pt-disco {
+  0% {
+    transform: translate(-38vw, -12vh) scale(0.7);
+  }
+  25% {
+    transform: translate(10vw, 18vh) scale(1);
+  }
+  50% {
+    transform: translate(36vw, -16vh) scale(0.8);
+  }
+  75% {
+    transform: translate(-6vw, 8vh) scale(1.1);
+  }
+  100% {
+    transform: translate(-38vw, -12vh) scale(0.7);
+  }
+}
+.pt-room__ball {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: clamp(64px, 7vw, 110px);
+  translate: -50% -120%;
+  transition: translate 0.7s var(--ease-spring);
+}
+.pt-room__disco.is-on .pt-room__ball {
+  translate: -50% calc(var(--topbar-h) + 100px);
+}
+/* finale: it only peeks in under the top bar, clear of the big title */
+.pt-room--party .pt-room__disco.is-on .pt-room__ball {
+  translate: -50% calc(var(--topbar-h) + 6px);
+}
+.pt-room__ball-cord {
+  position: absolute;
+  left: 50%;
+  bottom: 90%;
+  width: 3px;
+  height: 60vh;
+  margin-left: -1.5px;
+  background: var(--lavender);
+  opacity: 0.6;
+}
+.pt-room__ball-svg {
+  position: relative;
+  width: 100%;
+  height: auto;
+  animation: pt-ball 4s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 18px rgba(201, 179, 255, 0.6));
+}
+.pt-room__ball-tiles {
+  animation: pt-ball-spin 0.9s linear infinite;
+}
+@keyframes pt-ball {
+  from {
+    transform: rotate(-6deg);
+  }
+  to {
+    transform: rotate(6deg);
+  }
+}
+@keyframes pt-ball-spin {
+  to {
+    transform: translateX(10px);
+  }
+}
+
+/* --- overlays --- */
+.pt-room__dim,
+.pt-room__veil {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.4s var(--ease-out);
+}
+.pt-room__dim {
+  background: radial-gradient(ellipse 60% 60% at 58% 70%, rgba(6, 0, 18, 0.2), rgba(6, 0, 18, 0.72));
+}
+.pt-room__veil {
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 46%, rgba(76, 38, 160, 0.55) 0%, rgba(27, 10, 58, 0) 70%),
+    linear-gradient(180deg, #12062a 0%, #1b0a3a 55%, #0b0416 100%);
+  transition-duration: 2.4s;
+}
+.pt-room--dim .pt-room__dim {
+  opacity: 1;
+}
+.pt-room--calm .pt-room__veil {
+  opacity: 0.96;
+}
+.pt-room--party .pt-room__veil {
+  opacity: 0.62;
+}
+/* the disco layer paints above the veil in the finale */
+.pt-room--party .pt-room__disco {
+  z-index: 2;
+}
+
+/* landscape phones: no room for wall decor behind the present */
+@media (max-height: 520px) {
+  .pt-room__banner,
+  .pt-room__frames {
+    display: none;
+  }
+  .pt-room--party .pt-room__ball {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .pt-room {
+    --floor-y: 74%;
+  }
+  .pt-room__banner,
+  .pt-room__frames {
+    display: none;
+  }
+  .pt-room__window {
+    left: -6%;
+    top: calc(var(--topbar-h) + 14%);
+  }
+  .pt-room__lamp {
+    right: -4%;
+  }
+  .pt-room__balloons {
+    left: auto;
+    right: 8%;
+    bottom: calc(100% - var(--floor-y) + 18%);
+  }
+}

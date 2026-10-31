@@ -1,0 +1,179 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--mist);
+  background: var(--grape-950);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+:focus-visible {
+  outline: 3px solid var(--acid);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+::selection {
+  background: var(--hot);
+  color: var(--white);
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+/* ---------- Utilities ---------- */
+
+.u-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* White die-cut sticker outline + drop shadow. */
+.u-sticker {
+  filter: var(--sticker-filter);
+}
+
+.u-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+
+.u-marker {
+  font-family: var(--font-marker);
+}
+
+.u-pixel {
+  font-family: var(--font-pixel);
+  letter-spacing: 0.02em;
+}
+
+/* Chunky extruded headline text (purple 3D slab under lavender face). */
+.u-slab-text {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  color: var(--mist);
+  text-shadow:
+    0 1px 0 var(--lavender),
+    0 2px 0 var(--violet),
+    0 3px 0 var(--grape-600),
+    0 4px 0 var(--grape-600),
+    0 5px 0 var(--grape-700),
+    0 6px 0 var(--grape-700),
+    0 7px 0 var(--ink),
+    0 14px 24px rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(139, 77, 255, 0.55);
+}
+
+/* ---------- Boot loader (before React mounts) ---------- */
+
+.boot-loader {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  background: radial-gradient(circle at 50% 40%, #3b1a7a 0%, #12062a 70%);
+  color: #c9b3ff;
+  font: 600 18px/1 system-ui, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.boot-loader__brain {
+  font-size: 64px;
+  animation: boot-wobble 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes boot-wobble {
+  from {
+    transform: rotate(-12deg) scale(0.95);
+  }
+  to {
+    transform: rotate(12deg) scale(1.08);
+  }
+}
+
+/* ---------- Calm mode (birthday video) ---------- */
+
+html[data-calm='true'] .is-ambient {
+  opacity: 0.25 !important;
+  animation-play-state: paused !important;
+  transition: opacity 1.6s var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}

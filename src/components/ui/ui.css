@@ -1,0 +1,715 @@
+/* =========================================================
+   BigButton
+   ========================================================= */
+.bb {
+  --bb-bg: var(--acid);
+  --bb-fg: var(--ink);
+  --bb-glow: var(--glow-acid);
+  position: relative;
+  border: 0;
+  padding: 0 0 7px;
+  background: transparent;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  isolation: isolate;
+}
+.bb::before {
+  /* the hard 3D base */
+  content: '';
+  position: absolute;
+  inset: 7px 0 0;
+  border-radius: inherit;
+  background: var(--ink);
+  z-index: -1;
+}
+.bb__face {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55em;
+  min-height: 48px;
+  padding: 0.85em 1.5em 0.8em;
+  border-radius: inherit;
+  border: 3px solid var(--ink);
+  background: var(--bb-bg);
+  color: var(--bb-fg);
+  box-shadow:
+    inset 0 3px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -5px 0 rgba(0, 0, 0, 0.14);
+  transition: transform 0.12s var(--ease-out), box-shadow 0.2s;
+  white-space: nowrap;
+}
+/* hover glow only for real pointers (no sticky glow after a tap on phones) */
+@media (hover: hover) {
+  .bb:hover:not(:disabled):not([aria-disabled='true']) .bb__face {
+    box-shadow:
+      inset 0 3px 0 rgba(255, 255, 255, 0.55),
+      inset 0 -5px 0 rgba(0, 0, 0, 0.14),
+      var(--bb-glow);
+  }
+}
+.bb:active:not(:disabled):not([aria-disabled='true']) .bb__face {
+  transform: translateY(4px);
+  transition-duration: 0.05s;
+}
+/* keyboard focus: ink halo + acid ring, readable on light snow and dark night alike */
+.bb:focus-visible {
+  outline: 3px solid var(--acid);
+  outline-offset: 3px;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 0 0 3px var(--ink);
+}
+.bb:focus-visible .bb__face {
+  box-shadow:
+    inset 0 3px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -5px 0 rgba(0, 0, 0, 0.14),
+    var(--bb-glow);
+}
+.bb:disabled,
+.bb[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+/* (filter on the face only, so a soft-disabled button's focus ring stays bright) */
+.bb:disabled .bb__face,
+.bb[aria-disabled='true'] .bb__face {
+  filter: grayscale(0.7) brightness(0.75);
+  /* sunk into its base: clearly not pressable */
+  transform: translateY(3px);
+}
+.bb--sm {
+  font-size: 0.8rem;
+}
+.bb--sm .bb__face {
+  min-height: 40px;
+  padding: 0.7em 1.1em 0.65em;
+}
+.bb--md {
+  font-size: 1rem;
+}
+.bb--lg {
+  font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+}
+.bb--xl {
+  font-size: clamp(1.25rem, 3.4vw, 2rem);
+}
+.bb--xl .bb__face {
+  padding: 0.9em 1.6em 0.85em;
+  border-width: 4px;
+}
+.bb__icon {
+  display: inline-flex;
+  font-size: 1.2em;
+}
+.bb__trailing {
+  display: inline-flex;
+  transition: transform 0.2s var(--ease-spring);
+}
+@media (hover: hover) {
+  .bb:hover:not(:disabled):not([aria-disabled='true']) .bb__trailing {
+    transform: translateX(4px);
+  }
+}
+.bb--hot {
+  --bb-bg: var(--hot);
+  --bb-fg: var(--white);
+  --bb-glow: var(--glow-hot);
+}
+.bb--lavender {
+  --bb-bg: var(--lavender);
+  --bb-fg: var(--ink);
+  --bb-glow: var(--glow-violet);
+}
+.bb--cyan {
+  --bb-bg: var(--cyan);
+  --bb-fg: var(--ink);
+  --bb-glow: 0 0 22px rgba(56, 232, 255, 0.55);
+}
+.bb--sun {
+  --bb-bg: var(--sun);
+  --bb-fg: var(--ink);
+  --bb-glow: 0 0 22px rgba(255, 210, 63, 0.55);
+}
+.bb--danger {
+  --bb-bg: var(--danger);
+  --bb-fg: var(--white);
+  --bb-glow: 0 0 22px rgba(255, 59, 78, 0.6);
+}
+.bb--ghost {
+  --bb-bg: rgba(233, 224, 255, 0.08);
+  --bb-fg: var(--lilac);
+  --bb-glow: var(--glow-violet);
+}
+.bb--ghost .bb__face {
+  border-color: var(--lavender);
+  box-shadow: none;
+  backdrop-filter: blur(6px);
+}
+.bb--ghost::before {
+  background: rgba(14, 6, 32, 0.6);
+}
+.bb--wiggle {
+  animation: bb-wiggle 2.6s ease-in-out infinite;
+}
+@keyframes bb-wiggle {
+  0%,
+  78%,
+  100% {
+    rotate: 0deg;
+  }
+  82% {
+    rotate: -3deg;
+  }
+  86% {
+    rotate: 3deg;
+  }
+  90% {
+    rotate: -2deg;
+  }
+  94% {
+    rotate: 1deg;
+  }
+}
+
+/* =========================================================
+   Speech bubble
+   ========================================================= */
+.bubble {
+  --bubble-bg: var(--white);
+  --bubble-fg: var(--ink);
+  position: relative;
+  max-width: min(440px, 86vw);
+  padding: 14px 18px 15px;
+  border: 3px solid var(--ink);
+  border-radius: 22px;
+  background: var(--bubble-bg);
+  color: var(--bubble-fg);
+  box-shadow: 0 5px 0 var(--ink), 0 16px 30px rgba(6, 0, 20, 0.45);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: clamp(1rem, 1.6vw, 1.22rem);
+  line-height: 1.32;
+  overflow-wrap: break-word;
+  transform-origin: 50% 100%;
+}
+.bubble__speaker {
+  position: absolute;
+  top: -14px;
+  left: 16px;
+  padding: 3px 10px 4px;
+  border: 2.5px solid var(--ink);
+  border-radius: var(--radius-pill);
+  background: var(--grape-700);
+  color: var(--lilac);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.bubble::after,
+.bubble::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+/* tail: drawn as two triangles (ink outline + fill) */
+.bubble--tail-bottom::before,
+.bubble--tail-bottom-left::before,
+.bubble--tail-bottom-right::before {
+  bottom: -22px;
+  border-width: 22px 14px 0 14px;
+  border-color: var(--ink) transparent transparent transparent;
+}
+.bubble--tail-bottom::after,
+.bubble--tail-bottom-left::after,
+.bubble--tail-bottom-right::after {
+  bottom: -15px;
+  border-width: 16px 10px 0 10px;
+  border-color: var(--bubble-bg) transparent transparent transparent;
+}
+.bubble--tail-bottom::before {
+  left: calc(50% - 14px);
+}
+.bubble--tail-bottom::after {
+  left: calc(50% - 10px);
+}
+.bubble--tail-bottom-left::before {
+  left: 28px;
+}
+.bubble--tail-bottom-left::after {
+  left: 32px;
+}
+.bubble--tail-bottom-right::before {
+  right: 28px;
+}
+.bubble--tail-bottom-right::after {
+  right: 32px;
+}
+.bubble--tail-top::before,
+.bubble--tail-top-left::before,
+.bubble--tail-top-right::before {
+  top: -22px;
+  border-width: 0 14px 22px 14px;
+  border-color: transparent transparent var(--ink) transparent;
+}
+.bubble--tail-top::after,
+.bubble--tail-top-left::after,
+.bubble--tail-top-right::after {
+  top: -15px;
+  border-width: 0 10px 16px 10px;
+  border-color: transparent transparent var(--bubble-bg) transparent;
+}
+.bubble--tail-top::before {
+  left: calc(50% - 14px);
+}
+.bubble--tail-top::after {
+  left: calc(50% - 10px);
+}
+.bubble--tail-top-left::before {
+  left: 28px;
+}
+.bubble--tail-top-left::after {
+  left: 32px;
+}
+.bubble--tail-top-right::before {
+  right: 28px;
+}
+.bubble--tail-top-right::after {
+  right: 32px;
+}
+.bubble--tail-left::before {
+  left: -22px;
+  top: calc(50% - 14px);
+  border-width: 14px 22px 14px 0;
+  border-color: transparent var(--ink) transparent transparent;
+}
+.bubble--tail-left::after {
+  left: -15px;
+  top: calc(50% - 10px);
+  border-width: 10px 16px 10px 0;
+  border-color: transparent var(--bubble-bg) transparent transparent;
+}
+.bubble--tail-right::before {
+  right: -22px;
+  top: calc(50% - 14px);
+  border-width: 14px 0 14px 22px;
+  border-color: transparent transparent transparent var(--ink);
+}
+.bubble--tail-right::after {
+  right: -15px;
+  top: calc(50% - 10px);
+  border-width: 10px 0 10px 16px;
+  border-color: transparent transparent transparent var(--bubble-bg);
+}
+.bubble--tail-none::before,
+.bubble--tail-none::after {
+  display: none;
+}
+.bubble--i1 {
+  --bubble-bg: #fff4f6;
+}
+.bubble--i2 {
+  --bubble-bg: #ffe1e6;
+  font-size: clamp(1.05rem, 1.8vw, 1.32rem);
+  animation: bubble-jitter 0.18s steps(2) infinite;
+}
+.bubble--i3 {
+  --bubble-bg: #ffd0d6;
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  font-size: clamp(1.05rem, 2vw, 1.45rem);
+  line-height: 1.12;
+  animation: bubble-jitter 0.09s steps(2) infinite;
+  box-shadow: 0 5px 0 var(--ink), 0 0 0 6px rgba(255, 59, 78, 0.35), 0 16px 30px rgba(6, 0, 20, 0.45);
+}
+@keyframes bubble-jitter {
+  0% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 1.5px -1px;
+  }
+  100% {
+    translate: -1px 1px;
+  }
+}
+/*
+ * *Emphasis* words: a loud display-font chip per word. inline-block so the wobble can
+ * rotate/scale it, plus a little side margin + padding so the wider display glyphs and the
+ * wobble never crowd the neighbouring words. Line-height is pinned so the chip doesn't
+ * push the bubble's lines apart.
+ */
+.tw-em {
+  display: inline-block;
+  margin-inline: 0.1em;
+  padding-inline: 0.03em;
+  line-height: 1.05;
+  vertical-align: baseline;
+  color: #e3132f;
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.015em;
+  transform-origin: 50% 60%;
+  animation: em-wobble 0.5s ease-in-out infinite alternate;
+}
+/* (extra specificity so scene-level margin tweaks on .tw-em don't undo it) */
+.bubble .tw-em.tw-em--tight-r {
+  margin-right: 0.02em;
+}
+.bubble .tw-em.tw-em--tight-l {
+  margin-left: 0.02em;
+}
+@keyframes em-wobble {
+  from {
+    transform: rotate(-2deg) scale(1);
+  }
+  to {
+    transform: rotate(2deg) scale(1.04);
+  }
+}
+
+/* =========================================================
+   Meter
+   ========================================================= */
+.meter {
+  width: 100%;
+  min-width: 0;
+}
+.meter__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lilac);
+}
+.meter__readout {
+  color: var(--white);
+}
+.meter__track {
+  position: relative;
+  height: 18px;
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-pill);
+  background: rgba(14, 6, 32, 0.75);
+  overflow: hidden;
+  box-shadow: 0 3px 0 var(--ink);
+}
+.meter__fill,
+.meter__ghost {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+.meter__ghost {
+  background: rgba(255, 255, 255, 0.75);
+}
+.meter__fill::after {
+  content: '';
+  position: absolute;
+  inset: 2px 6px auto;
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.45);
+}
+.meter__segments {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-evenly;
+  pointer-events: none;
+}
+.meter__segments span {
+  width: 3px;
+  background: var(--ink);
+  opacity: 0.6;
+}
+.meter--pixel .meter__top {
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+}
+.meter--pixel .meter__track {
+  border-radius: 4px;
+  height: 20px;
+}
+.meter--danger .meter__track {
+  animation: bubble-jitter 0.12s steps(2) infinite;
+}
+
+/* =========================================================
+   Comic burst
+   ========================================================= */
+.burst {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  z-index: var(--z-hud);
+}
+.burst svg {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+.burst__text {
+  position: relative;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  -webkit-text-stroke: 1px var(--ink);
+  white-space: nowrap;
+}
+
+/* =========================================================
+   Toasts
+   ========================================================= */
+/* Achievement toasts drop in over the top-bar row, like a phone notification, one at a time:
+   compact enough (≤ the bar's height) that they never reach the scene title, the HUD or the
+   dock's next-button. They don't take clicks, so the pills underneath stay usable. */
+.toaster {
+  position: fixed;
+  top: calc(var(--safe-top) + 5px);
+  left: 50%;
+  translate: -50% 0;
+  z-index: var(--z-toast);
+  display: grid;
+  justify-items: center;
+  pointer-events: none;
+  width: min(calc(100vw - 16px), 580px);
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 6px 16px 7px 10px;
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  background: var(--sun);
+  color: var(--ink);
+  box-shadow: 0 4px 0 var(--ink), 0 12px 26px rgba(0, 0, 0, 0.4);
+}
+.toast__icon {
+  flex: none;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+.toast__text {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.22;
+  text-wrap: balance;
+}
+.toast__text strong {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 0.8rem;
+  line-height: 1.12;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+/* Portrait phones: the music disc lives in the top-right corner — keep toasts left of it */
+@media (max-width: 767px) and (min-height: 501px) {
+  .toaster {
+    left: 12px;
+    translate: none;
+    width: calc(100vw - 84px);
+    justify-items: start;
+  }
+}
+@media (max-width: 599px), (max-height: 500px) {
+  .toaster {
+    top: calc(var(--safe-top) + 4px);
+  }
+  .toast {
+    gap: 8px;
+    min-height: 0;
+    padding: 4px 12px 5px 8px;
+    border-radius: 13px;
+    box-shadow: 0 3px 0 var(--ink), 0 10px 22px rgba(0, 0, 0, 0.4);
+  }
+  .toast__icon {
+    font-size: 1.2rem;
+  }
+  .toast__text {
+    font-size: 0.74rem;
+    line-height: 1.18;
+  }
+  .toast__text strong {
+    font-size: 0.7rem;
+  }
+}
+
+/* =========================================================
+   Scene shell
+   ========================================================= */
+.shell {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  /* one column that can never grow past the viewport: a too-wide dock or HUD overflows
+     on its own instead of silently widening the stage (and everything centered in it) */
+  grid-template-columns: minmax(0, 1fr);
+  padding-top: calc(var(--topbar-h) + var(--safe-top));
+  overflow: hidden;
+}
+.shell__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+.shell__header {
+  grid-row: 1;
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 8px var(--gutter) 0;
+  text-align: center;
+  pointer-events: none;
+}
+.shell__chip {
+  padding: 4px 10px 5px;
+  border: 2.5px solid var(--ink);
+  border-radius: var(--radius-pill);
+  background: var(--lavender);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  box-shadow: 0 3px 0 var(--ink);
+  rotate: -2deg;
+}
+.shell__title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.35rem, 3.6vw, 2.6rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: var(--mist);
+  text-shadow:
+    0 2px 0 var(--violet),
+    0 4px 0 var(--grape-700),
+    0 6px 0 var(--ink),
+    0 0 30px rgba(139, 77, 255, 0.5);
+  text-wrap: balance;
+}
+.shell__kicker {
+  font-family: var(--font-marker);
+  color: var(--lavender);
+  font-size: clamp(0.85rem, 1.4vw, 1.05rem);
+  rotate: -1deg;
+}
+.shell__hud {
+  grid-row: 2;
+  position: relative;
+  z-index: 3;
+  padding: 10px var(--gutter) 0;
+}
+.shell__stage {
+  grid-row: 3;
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+}
+.shell__dock {
+  grid-row: 4;
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 10px max(var(--gutter), var(--player-side-clearance)) calc(18px + var(--safe-bottom) + var(--player-clearance));
+}
+
+/* Short screens (1280×720 / 1024×768 laptops & tablets, small phones): the header gives height back to the stage. */
+@media (max-height: 800px) {
+  .shell__header {
+    gap: 4px;
+    padding-top: 4px;
+  }
+  .shell__chip {
+    padding: 3px 9px 4px;
+    font-size: 0.62rem;
+  }
+  .shell__title {
+    font-size: clamp(1.25rem, 3.1vw, 2.2rem);
+    text-shadow:
+      0 2px 0 var(--violet),
+      0 3px 0 var(--grape-700),
+      0 5px 0 var(--ink),
+      0 0 26px rgba(139, 77, 255, 0.5);
+  }
+  .shell__kicker {
+    font-size: clamp(0.8rem, 1.2vw, 0.95rem);
+  }
+  .shell__hud {
+    padding-top: 8px;
+  }
+}
+@media (max-width: 599px) and (max-height: 700px) {
+  .shell__title {
+    font-size: 1.2rem;
+  }
+}
+/* Landscape phones: the chapter name already lives in the top bar — keep a one-line title only. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .shell__header {
+    padding-top: 2px;
+  }
+  .shell__chip,
+  .shell__kicker {
+    display: none;
+  }
+  /* a small label plate, so the one-line title stays readable over busy backdrops (bunting, signs) */
+  .shell__title {
+    padding: 3px 12px 4px;
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-pill);
+    background: rgba(18, 6, 42, 0.82);
+    box-shadow: 0 3px 0 var(--ink);
+    font-size: 0.95rem;
+    white-space: nowrap;
+    text-shadow: 0 2px 0 var(--grape-700);
+  }
+  .shell__hud {
+    padding-top: 6px;
+  }
+  .shell__dock {
+    padding-top: 6px;
+    padding-bottom: calc(10px + var(--safe-bottom));
+  }
+}
+
+/* =========================================================
+   Next CTA
+   ========================================================= */
+.next-cta {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+.next-cta__note {
+  font-family: var(--font-marker);
+  color: var(--lavender);
+  font-size: 0.95rem;
+}

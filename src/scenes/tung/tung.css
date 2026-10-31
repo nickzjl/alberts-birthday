@@ -1,0 +1,2763 @@
+/* =========================================================
+   Experience 02 — Tung Tung Tung Sahur boss fight
+   Arena units = px inside .tg-arena (scaled to fit). --inv = 1 / scale.
+   ========================================================= */
+
+@property --tg-inset-l {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+@property --tg-inset-r {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+@property --tg-inset-b {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+@property --tg-inset-t {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+@property --tg-avoid-l {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+.tg {
+  --tg-wood: #7a4560;
+  --fxk: max(1, calc(var(--inv, 1) * 0.8));
+}
+/* nothing in here may scroll the scene (focus / scrollIntoView would shove the arena off-screen) */
+.shell.tg,
+.tg .shell__stage {
+  overflow: clip;
+}
+
+/* the chapter header gets out of the way once the fight is on (small / laptop-height screens) */
+@media (max-width: 767px), (max-height: 820px) {
+  .tg--howto .shell__header,
+  .tg--fight .shell__header,
+  .tg--victory .shell__header {
+    display: none;
+  }
+}
+.tg--fight .shell__hud,
+.tg--victory .shell__hud {
+  padding-top: 8px;
+}
+.tg .shell__dock {
+  padding-top: 6px;
+}
+
+/* ---------------------------------------------------------
+   Sky backdrop
+   --------------------------------------------------------- */
+.tg-sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #07021a 0%, #13062f 32%, #261057 62%, #43196e 84%, #5a2272 100%);
+  overflow: hidden;
+}
+.tg-sky__red {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 59, 78, 0) 30%, rgba(255, 59, 78, 0.28) 100%);
+  opacity: 0;
+  transition: opacity 1.2s var(--ease-out);
+}
+.tg--p3.tg--fight .tg-sky__red {
+  opacity: 1;
+  animation: tg-redpulse 1.8s ease-in-out infinite alternate;
+}
+@keyframes tg-redpulse {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.tg-sky__stars {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 72%;
+  max-width: none;
+}
+.tg-twinkle {
+  animation: tg-twinkle 3.2s ease-in-out infinite alternate;
+}
+.tg-twinkle--1 {
+  animation-duration: 4.4s;
+  animation-delay: -1.3s;
+}
+.tg-twinkle--2 {
+  animation-duration: 2.6s;
+  animation-delay: -0.6s;
+}
+@keyframes tg-twinkle {
+  from {
+    opacity: 0.25;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.tg-moon {
+  position: absolute;
+  top: calc(var(--topbar-h) + 8vh);
+  right: 7vw;
+  width: clamp(76px, 10vw, 140px);
+  aspect-ratio: 1;
+  animation: tg-float 7s ease-in-out infinite alternate;
+}
+@keyframes tg-float {
+  from {
+    transform: translateY(0) rotate(-4deg);
+  }
+  to {
+    transform: translateY(10px) rotate(3deg);
+  }
+}
+.tg-cloud {
+  position: absolute;
+  height: 34px;
+  border-radius: 999px;
+  background: #2c1260;
+  box-shadow: inset 0 3px 0 rgba(201, 179, 255, 0.18);
+  opacity: 0.85;
+  animation: tg-drift 48s linear infinite alternate;
+}
+.tg-cloud::before,
+.tg-cloud::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: inherit;
+  box-shadow: inherit;
+}
+.tg-cloud::before {
+  width: 46%;
+  height: 170%;
+  left: 14%;
+  bottom: 30%;
+}
+.tg-cloud::after {
+  width: 30%;
+  height: 130%;
+  left: 52%;
+  bottom: 40%;
+}
+.tg-cloud--a {
+  width: clamp(110px, 15vw, 210px);
+  top: 22%;
+  left: 6%;
+}
+.tg-cloud--b {
+  width: clamp(90px, 11vw, 160px);
+  top: 34%;
+  left: 58%;
+  opacity: 0.6;
+  animation-duration: 62s;
+  animation-direction: alternate-reverse;
+}
+.tg-cloud--c {
+  width: clamp(70px, 8vw, 120px);
+  top: 14%;
+  left: 38%;
+  opacity: 0.45;
+  animation-duration: 40s;
+}
+@keyframes tg-drift {
+  from {
+    translate: -40px 0;
+  }
+  to {
+    translate: 60px 0;
+  }
+}
+
+/* ---------------------------------------------------------
+   Stage + arena
+   --------------------------------------------------------- */
+.tg-stage {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.tg--fight .tg-stage {
+  cursor: pointer;
+}
+/* paused fight: everything in the street holds its breath (telegraph timers included) */
+.tg-stage.is-paused .tg-wobble,
+.tg-stage.is-paused .tg-wobble *,
+.tg-stage.is-paused .tg-vignette {
+  animation-play-state: paused !important;
+}
+.tg-stage.is-paused .tg-wobble {
+  filter: saturate(0.55) brightness(0.8);
+  transition: filter 0.2s;
+}
+.tg-wobble {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 85%;
+}
+.tg--p3.tg--fight .tg-wobble {
+  animation: tg-wobble 2.6s ease-in-out infinite;
+}
+@keyframes tg-wobble {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  25% {
+    rotate: -1deg;
+  }
+  75% {
+    rotate: 1deg;
+  }
+}
+.tg-arena {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+.tg-arena.is-settled {
+  transition: transform 0.5s var(--ease-out);
+}
+.tg-set {
+  position: absolute;
+  top: 0;
+  max-width: none;
+  overflow: visible;
+  pointer-events: none;
+}
+.tg-sign-text {
+  font-family: var(--font-display);
+  font-size: 23px;
+  letter-spacing: 1.5px;
+  fill: var(--sun);
+}
+.tg-layer-abs {
+  position: absolute;
+  max-width: none;
+  overflow: visible;
+  pointer-events: none;
+}
+.tg-pool {
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 184, 107, 0.42), rgba(255, 184, 107, 0));
+}
+.tg-bulbglow {
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 241, 201, 0.95), rgba(255, 184, 107, 0.5) 30%, rgba(255, 184, 107, 0));
+}
+.tg-pool,
+.tg-cone,
+.tg-bulbglow {
+  animation: tg-flicker 5s steps(1) infinite;
+}
+@keyframes tg-flicker {
+  0%,
+  41%,
+  45%,
+  100% {
+    opacity: 1;
+  }
+  42% {
+    opacity: 0.55;
+  }
+  44% {
+    opacity: 0.8;
+  }
+}
+.tg-kentongan,
+.tg-stick {
+  transform-origin: 50% 0;
+  animation: tg-sway 2.8s ease-in-out infinite alternate;
+}
+.tg-stick {
+  animation-duration: 2.2s;
+  animation-delay: -0.8s;
+}
+@keyframes tg-sway {
+  from {
+    rotate: -5deg;
+  }
+  to {
+    rotate: 5deg;
+  }
+}
+.tg-rope {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 3px;
+  margin-left: -1.5px;
+  background: #e9d3a8;
+}
+.tg-kentongan__drum {
+  position: absolute;
+  left: 0;
+  top: 20px;
+  width: 32px;
+  height: 68px;
+}
+.tg-stick__wood {
+  position: absolute;
+  left: 0;
+  top: 28px;
+  width: 10px;
+  height: 46px;
+  border: 2.5px solid var(--ink);
+  border-radius: 5px;
+  background: #b8704f;
+}
+.tg-steam {
+  animation: tg-steam 2.4s ease-in-out infinite;
+}
+@keyframes tg-steam {
+  0% {
+    opacity: 0;
+    translate: 0 6px;
+  }
+  40% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    translate: 0 -10px;
+  }
+}
+.tg-bulbs {
+  animation: tg-twinkle 1.2s ease-in-out infinite alternate;
+}
+.tg-bulbs--1 {
+  animation-delay: -0.4s;
+}
+.tg-bulbs--2 {
+  animation-delay: -0.8s;
+}
+
+/* pulsing red edges: a hint of it in phase 2, thumping with the kentongan beat in phase 3 */
+.tg-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(ellipse 75% 70% at 50% 55%, rgba(255, 59, 78, 0) 55%, rgba(255, 59, 78, 0.3) 82%, rgba(255, 30, 60, 0.6) 100%);
+  transition: opacity 0.8s var(--ease-out);
+}
+.tg--p2.tg--fight .tg-vignette {
+  opacity: 0.18;
+}
+.tg--p3.tg--fight .tg-vignette {
+  opacity: 0.35;
+}
+/* escalation in the street: lights speed up (2), then strobe (3); kentongan rocks; lamp stutters */
+.tg--p2.tg--fight .tg-bulbs {
+  animation-duration: 0.55s;
+}
+.tg--p3.tg--fight .tg-bulbs {
+  animation: tg-strobe 0.36s steps(1) infinite;
+}
+.tg--p3.tg--fight .tg-bulbs--1 {
+  animation-delay: -0.12s;
+}
+.tg--p3.tg--fight .tg-bulbs--2 {
+  animation-delay: -0.24s;
+}
+@keyframes tg-strobe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  34% {
+    opacity: 0.12;
+  }
+}
+.tg--p3.tg--fight .tg-kentongan,
+.tg--p3.tg--fight .tg-stick {
+  animation: tg-sway-hard 0.34s ease-in-out infinite alternate;
+}
+.tg--p3.tg--fight .tg-stick {
+  animation-delay: -0.17s;
+}
+@keyframes tg-sway-hard {
+  from {
+    rotate: -17deg;
+  }
+  to {
+    rotate: 17deg;
+  }
+}
+.tg--p3.tg--fight .tg-pool,
+.tg--p3.tg--fight .tg-cone,
+.tg--p3.tg--fight .tg-bulbglow {
+  animation-duration: 1.3s;
+}
+.tg-moon svg {
+  transition: filter 1.2s var(--ease-out);
+}
+.tg--p3.tg--fight .tg-moon svg {
+  filter: sepia(1) saturate(7) hue-rotate(-48deg) brightness(0.95);
+}
+/* the neighbours wake up: windows blaze on one after another… */
+.tg-nwin {
+  border-radius: 3px;
+  background: #fff4b8;
+  box-shadow: 0 0 10px 4px rgba(255, 210, 63, 0.75), 0 0 34px 10px rgba(255, 184, 107, 0.35);
+  opacity: 0;
+  pointer-events: none;
+}
+.tg--p3.tg--fight .tg-nwin {
+  animation: tg-nwin 0.5s steps(1) calc(2.9s + var(--i, 0) * 0.32s) both, tg-nwin-flick 3.2s steps(1) calc(3.4s + var(--i, 0) * 0.32s) infinite;
+}
+@keyframes tg-nwin {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 0.3;
+  }
+  60%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes tg-nwin-flick {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  48% {
+    opacity: 0.55;
+  }
+  52% {
+    opacity: 1;
+  }
+}
+/* …and yell (phase 3, CSS-timed after the title card) */
+.tg-shout {
+  position: absolute;
+  padding: 6px 10px 7px;
+  border: 3px solid var(--ink);
+  border-radius: 12px 12px 12px 4px;
+  background: var(--white);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 15px;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 4px 0 var(--ink);
+  translate: 0 -100%;
+  scale: var(--fxk);
+  transform-origin: 0 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+.tg-shout::after {
+  content: '';
+  position: absolute;
+  left: 18px;
+  bottom: -12px;
+  border-style: solid;
+  border-width: 11px 9px 0 0;
+  border-color: var(--ink) transparent transparent;
+}
+.tg-shout--b {
+  border-radius: 12px 12px 4px 12px;
+  background: var(--sun);
+  transform-origin: 100% 100%;
+}
+.tg-shout--b::after {
+  left: auto;
+  right: 18px;
+  border-width: 11px 0 0 9px;
+}
+.tg--p3.tg--fight .tg-shout--a {
+  animation: tg-shout 2.6s var(--ease-out) 3.2s both;
+}
+.tg--p3.tg--fight .tg-shout--b {
+  animation: tg-shout 2.6s var(--ease-out) 5.1s both;
+}
+@keyframes tg-shout {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-8deg);
+  }
+  8% {
+    opacity: 1;
+    transform: scale(1.12) rotate(3deg);
+  }
+  14%,
+  86% {
+    opacity: 1;
+    transform: scale(1) rotate(-2deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9) translateY(-10px) rotate(-2deg);
+  }
+}
+
+/* chaos tint (phase 3) */
+.tg-chaos {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+.tg--p3.tg--fight .tg-chaos {
+  animation: tg-chaos 2.4s steps(1) infinite;
+}
+@keyframes tg-chaos {
+  0% {
+    opacity: 0.13;
+    background: var(--hot);
+  }
+  12% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.09;
+    background: var(--cyan);
+  }
+  58% {
+    opacity: 0;
+  }
+  80% {
+    opacity: 0.08;
+    background: var(--acid);
+  }
+  86% {
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------
+   Tung
+   --------------------------------------------------------- */
+.tg-boss {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
+}
+.tg-boss__fx {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+}
+.tg-dizzy {
+  position: absolute;
+  left: 50%;
+  top: -14px;
+  width: 0;
+  height: 0;
+}
+.tg-dizzy__ring {
+  position: absolute;
+  left: -70px;
+  top: -16px;
+  width: 140px;
+  height: 36px;
+}
+.tg-dizzy__ring span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  font-size: 30px;
+  line-height: 1;
+  color: var(--sun);
+  -webkit-text-stroke: 1.5px var(--ink);
+  animation: tg-orbit 1.1s linear infinite;
+}
+.tg-dizzy__ring span:nth-child(2) {
+  animation-delay: -0.367s;
+  color: var(--cyan);
+}
+.tg-dizzy__ring span:nth-child(3) {
+  animation-delay: -0.733s;
+}
+@keyframes tg-orbit {
+  0% {
+    transform: translate(-50%, -50%) translate(62px, 0) scale(1);
+  }
+  25% {
+    transform: translate(-50%, -50%) translate(0, 14px) scale(1.25);
+  }
+  50% {
+    transform: translate(-50%, -50%) translate(-62px, 0) scale(1);
+  }
+  75% {
+    transform: translate(-50%, -50%) translate(0, -14px) scale(0.7);
+  }
+  100% {
+    transform: translate(-50%, -50%) translate(62px, 0) scale(1);
+  }
+}
+.tg-dizzy__prompt {
+  position: absolute;
+  left: 0;
+  bottom: 34px;
+  padding: 6px 10px 7px;
+  border: 3px solid var(--ink);
+  border-radius: 10px;
+  background: var(--hot);
+  color: var(--white);
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  white-space: nowrap;
+  box-shadow: 0 4px 0 var(--ink), var(--glow-hot);
+  transform-origin: 50% 100%;
+  translate: calc(-50% + var(--shift, 0px)) 0;
+  scale: var(--inv, 1);
+  animation: tg-prompt 0.5s ease-in-out infinite alternate;
+}
+.tg-dizzy__prompt::after {
+  content: '';
+  position: absolute;
+  /* keeps pointing at his head when the label is nudged in from a screen edge */
+  left: clamp(8px, calc(50% - 8px - var(--shift, 0px) / var(--inv, 1)), calc(100% - 24px));
+  bottom: -12px;
+  border-style: solid;
+  border-width: 10px 8px 0;
+  border-color: var(--ink) transparent transparent;
+}
+/* no headroom (short screens): the label sits beside his head, pointing at him */
+.tg-dizzy.is-low .tg-dizzy__prompt {
+  bottom: auto;
+  top: 70px;
+  padding: 5px 8px 6px;
+  font-size: 10px;
+  translate: 0 -50%;
+  cursor: pointer;
+}
+.tg-dizzy.is-low.is-left .tg-dizzy__prompt {
+  left: auto;
+  right: 62px;
+  transform-origin: 100% 50%;
+}
+.tg-dizzy.is-low.is-right .tg-dizzy__prompt {
+  left: 62px;
+  transform-origin: 0 50%;
+}
+.tg-dizzy.is-low .tg-dizzy__prompt::after {
+  bottom: auto;
+  top: calc(50% - 7px);
+  border-width: 7px 0 7px 10px;
+  border-color: transparent transparent transparent var(--ink);
+  left: auto;
+  right: -12px;
+}
+.tg-dizzy.is-low.is-right .tg-dizzy__prompt::after {
+  right: auto;
+  left: -12px;
+  border-width: 7px 10px 7px 0;
+  border-color: transparent var(--ink) transparent transparent;
+}
+@keyframes tg-prompt {
+  from {
+    transform: translateY(0) rotate(-2deg);
+  }
+  to {
+    transform: translateY(-8px) rotate(2deg);
+  }
+}
+
+/* ---------------------------------------------------------
+   Albert
+   --------------------------------------------------------- */
+.tg-albert {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
+}
+.tg-albert__rig {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+}
+.tg-albert__flip {
+  width: 100%;
+  height: 100%;
+}
+.tg-albert__flip.is-left {
+  transform: scaleX(-1);
+}
+.tg-albert__flip.is-blink {
+  animation: tg-blink 0.14s steps(2) infinite;
+}
+@keyframes tg-blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+.tg-albert__tag {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 28px);
+  padding: 3px 6px 4px;
+  border-radius: 6px;
+  background: rgba(14, 6, 32, 0.72);
+  color: var(--acid);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  translate: -50% 0;
+  scale: var(--fxk);
+  transform-origin: 50% 100%;
+  pointer-events: none;
+}
+.tg-albert__tag::after {
+  content: '';
+  position: absolute;
+  left: calc(50% - 4px);
+  bottom: -5px;
+  border-style: solid;
+  border-width: 5px 4px 0;
+  border-color: rgba(14, 6, 32, 0.72) transparent transparent;
+}
+.tg--victory .tg-albert__tag {
+  color: var(--sun);
+}
+.tg-albert__tag.is-off {
+  visibility: hidden;
+}
+/* what to do RIGHT NOW, over his head: stealth-game "!" (get out) / "JUMP!" (now) */
+.tg-cue {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 16px);
+  width: 0;
+  height: 0;
+  scale: var(--fxk);
+  pointer-events: none;
+  z-index: 2;
+}
+.tg-cue__chip {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  translate: -50% 0;
+  display: block;
+  font-family: var(--font-display);
+  line-height: 1;
+  white-space: nowrap;
+  transform-origin: 50% 100%;
+}
+.tg-cue__chip--danger {
+  font-size: 54px;
+  color: var(--danger);
+  -webkit-text-stroke: 3px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0 4px 0 var(--ink), 0 0 18px rgba(255, 59, 78, 0.8);
+}
+.tg-cue__chip--jump {
+  padding: 6px 10px 7px;
+  border: 3px solid var(--ink);
+  border-radius: 10px;
+  background: var(--acid);
+  color: var(--ink);
+  font-size: 22px;
+  box-shadow: 0 4px 0 var(--ink), var(--glow-acid);
+}
+.tg-cue__chip--jump::after {
+  content: '';
+  position: absolute;
+  left: calc(50% - 7px);
+  bottom: -11px;
+  border-style: solid;
+  border-width: 9px 7px 0;
+  border-color: var(--ink) transparent transparent;
+}
+.tg-albert-shadow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 64px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(8, 2, 20, 0.85), rgba(8, 2, 20, 0));
+}
+.tg-zzz {
+  position: absolute;
+  left: 72%;
+  top: 0;
+  pointer-events: none;
+}
+.tg-zzz span {
+  position: absolute;
+  font-family: var(--font-marker);
+  font-size: 20px;
+  color: var(--lavender);
+  opacity: 0;
+  animation: tg-zzz 2.4s ease-out infinite;
+}
+.tg-zzz span:nth-child(2) {
+  animation-delay: 0.8s;
+}
+.tg-zzz span:nth-child(3) {
+  animation-delay: 1.6s;
+  font-size: 26px;
+}
+@keyframes tg-zzz {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.6);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(22px, -46px) scale(1.2) rotate(12deg);
+  }
+}
+.tg-ko-stars {
+  position: absolute;
+  /* over his head: the K.O. body lies head-left (or head-right when mirrored) */
+  left: -34px;
+  top: 52px;
+  font-size: 18px;
+  color: var(--sun);
+  white-space: nowrap;
+  animation: tg-kostar 0.9s linear infinite;
+  -webkit-text-stroke: 1px var(--ink);
+}
+.tg-ko-stars.is-right {
+  left: 66px;
+}
+@keyframes tg-kostar {
+  50% {
+    transform: translateY(-4px) rotate(8deg);
+  }
+}
+
+/* Albert's limbs (SVG groups) */
+.alb {
+  display: block;
+  overflow: visible;
+  max-width: none;
+}
+.alb__leg,
+.alb__arm,
+.alb__hat,
+.alb__body,
+.alb__head,
+.alb__eyes,
+.alb__yawn {
+  transform-box: fill-box;
+}
+.alb__leg {
+  transform-origin: 50% 0%;
+}
+.alb__arm {
+  transform-origin: 50% 8%;
+  transition: rotate 0.12s var(--ease-out);
+}
+.alb__hat {
+  transform-origin: 40% 100%;
+}
+.alb__body {
+  transform-origin: 50% 100%;
+}
+.alb__head {
+  transform-origin: 50% 90%;
+}
+.alb__eyes {
+  transform-origin: 50% 50%;
+  animation: alb-blink 3.8s infinite;
+}
+@keyframes alb-blink {
+  0%,
+  93%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+.alb--idle .alb__body,
+.alb--sleepy .alb__body {
+  animation: alb-breathe 2.2s ease-in-out infinite;
+}
+@keyframes alb-breathe {
+  50% {
+    transform: translateY(1.4px) scaleY(0.985);
+  }
+}
+.alb--sleepy .alb__head {
+  animation: alb-nod 3.4s ease-in-out infinite;
+}
+@keyframes alb-nod {
+  0%,
+  55%,
+  100% {
+    rotate: 0deg;
+  }
+  72% {
+    rotate: 9deg;
+    translate: 0 2px;
+  }
+  80% {
+    rotate: -3deg;
+    translate: 0 -1px;
+  }
+}
+.alb__yawn {
+  transform-origin: 50% 0%;
+  animation: alb-yawn 3.4s ease-in-out infinite;
+}
+@keyframes alb-yawn {
+  0%,
+  20%,
+  100% {
+    transform: scale(0.7);
+  }
+  35% {
+    transform: scale(1.3, 1.6);
+  }
+}
+.alb--idle .alb__hat {
+  animation: alb-hat 2.2s ease-in-out infinite;
+}
+@keyframes alb-hat {
+  50% {
+    rotate: 4deg;
+  }
+}
+.alb--run .alb__leg--f {
+  animation: alb-leg 0.34s linear infinite;
+}
+.alb--run .alb__leg--b {
+  animation: alb-leg 0.34s linear -0.17s infinite;
+}
+@keyframes alb-leg {
+  0%,
+  100% {
+    rotate: 30deg;
+  }
+  50% {
+    rotate: -30deg;
+  }
+}
+.alb--run .alb__arm--f {
+  animation: alb-arm 0.34s linear -0.17s infinite;
+}
+.alb--run .alb__arm--b {
+  animation: alb-arm 0.34s linear infinite;
+}
+@keyframes alb-arm {
+  0%,
+  100% {
+    rotate: -40deg;
+  }
+  50% {
+    rotate: 40deg;
+  }
+}
+.alb--run .alb__body {
+  animation: alb-runbob 0.17s ease-in-out infinite alternate;
+}
+@keyframes alb-runbob {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 -3px;
+  }
+}
+.alb--run .alb__hat {
+  animation: alb-hatrun 0.34s ease-in-out infinite;
+}
+@keyframes alb-hatrun {
+  0%,
+  100% {
+    rotate: -10deg;
+  }
+  50% {
+    rotate: 6deg;
+  }
+}
+.alb--jump .alb__arm--f {
+  rotate: 150deg;
+}
+.alb--jump .alb__arm--b {
+  rotate: -150deg;
+}
+.alb--jump .alb__leg--f {
+  rotate: 18deg;
+}
+.alb--jump .alb__leg--b {
+  rotate: -12deg;
+}
+.alb--jump .alb__hat {
+  rotate: -14deg;
+}
+.alb--fall .alb__arm--f {
+  rotate: 110deg;
+  animation: alb-flail 0.18s ease-in-out infinite alternate;
+}
+.alb--fall .alb__arm--b {
+  rotate: -110deg;
+  animation: alb-flail 0.18s ease-in-out -0.09s infinite alternate;
+}
+.alb--fall .alb__hat {
+  rotate: 10deg;
+}
+@keyframes alb-flail {
+  from {
+    translate: 0 -1px;
+  }
+  to {
+    translate: 0 2px;
+  }
+}
+.alb--hurt {
+  animation: alb-shake 0.08s linear infinite;
+}
+.alb--hurt .alb__arm--f {
+  rotate: 120deg;
+}
+.alb--hurt .alb__arm--b {
+  rotate: -130deg;
+}
+.alb--hurt .alb__hat {
+  rotate: -30deg;
+  translate: -4px -6px;
+}
+@keyframes alb-shake {
+  0% {
+    translate: -1.5px 0;
+  }
+  50% {
+    translate: 1.5px 0;
+  }
+}
+.alb--bonk .alb__arm--f {
+  animation: alb-bonk 0.3s var(--ease-out) both;
+}
+.alb--bonk .alb__body {
+  animation: alb-bonkbody 0.3s var(--ease-out) both;
+}
+@keyframes alb-bonk {
+  from {
+    rotate: 170deg;
+  }
+  to {
+    rotate: -60deg;
+  }
+}
+@keyframes alb-bonkbody {
+  from {
+    rotate: -8deg;
+  }
+  to {
+    rotate: 6deg;
+  }
+}
+.alb--win .alb__body {
+  animation: alb-dance 0.5s ease-in-out infinite alternate;
+}
+.alb--win .alb__arm--f {
+  rotate: 150deg;
+  animation: alb-wave 0.25s ease-in-out infinite alternate;
+}
+.alb--win .alb__arm--b {
+  rotate: -150deg;
+  animation: alb-wave 0.25s ease-in-out -0.12s infinite alternate;
+}
+.alb--win .alb__leg--f {
+  animation: alb-leg 0.5s ease-in-out infinite;
+}
+.alb--win .alb__hat {
+  animation: alb-hatrun 0.5s ease-in-out infinite;
+}
+@keyframes alb-dance {
+  from {
+    transform: translateY(0) rotate(-7deg);
+  }
+  to {
+    transform: translateY(-6px) rotate(7deg);
+  }
+}
+@keyframes alb-wave {
+  from {
+    translate: -2px 0;
+  }
+  to {
+    translate: 2px -2px;
+  }
+}
+.alb--ko {
+  transform-origin: 50% 96%;
+  transform: translate(8%, -4%) rotate(-84deg);
+  transition: transform 0.25s var(--ease-out);
+}
+.alb--ko .alb__arm--f {
+  rotate: 70deg;
+}
+.alb--ko .alb__hat {
+  rotate: 40deg;
+  translate: 10px -10px;
+}
+
+/* ---------------------------------------------------------
+   Telegraphs
+   --------------------------------------------------------- */
+.tg-marker {
+  position: absolute;
+  height: 48px;
+  pointer-events: none;
+}
+.tg-marker__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 4px dashed var(--danger);
+  background: rgba(255, 59, 78, 0.16);
+  overflow: hidden;
+  animation: tg-ringpulse 0.32s ease-in-out infinite alternate;
+}
+.tg-marker__fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 59, 78, 0.85), rgba(255, 59, 78, 0.35));
+  transform: scale(0);
+  animation: tg-grow var(--dur, 1s) linear forwards;
+}
+@keyframes tg-grow {
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes tg-ringpulse {
+  from {
+    border-color: var(--danger);
+  }
+  to {
+    border-color: #ffd0d6;
+  }
+}
+.tg-marker__beam {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: 50%;
+  height: 300px;
+  background: linear-gradient(to top, rgba(255, 59, 78, 0.38), rgba(255, 59, 78, 0));
+  transform-origin: 50% 100%;
+  animation: tg-beam var(--dur, 1s) ease-in forwards;
+}
+@keyframes tg-beam {
+  from {
+    transform: scaleY(0.2);
+    opacity: 0.4;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+/* phase 2+: shockwave chevrons pushing out of both sides of the zone */
+.tg-marker__waves {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.tg-marker__waves span {
+  position: absolute;
+  top: 50%;
+  font-family: var(--font-display);
+  font-size: 40px;
+  line-height: 1;
+  color: #c9b3ff;
+  -webkit-text-stroke: 2px var(--ink);
+  translate: 0 -55%;
+  animation: tg-wavehint-l 0.5s ease-out infinite;
+}
+.tg-marker__waves span:first-child {
+  right: calc(100% + 2px);
+}
+.tg-marker__waves span:last-child {
+  left: calc(100% + 2px);
+  animation-name: tg-wavehint-r;
+}
+@keyframes tg-wavehint-l {
+  from {
+    transform: translateX(10px);
+    opacity: 0.2;
+  }
+  to {
+    transform: translateX(-16px);
+    opacity: 1;
+  }
+}
+@keyframes tg-wavehint-r {
+  from {
+    transform: translateX(-10px);
+    opacity: 0.2;
+  }
+  to {
+    transform: translateX(16px);
+    opacity: 1;
+  }
+}
+.tg-marker__sign {
+  position: absolute;
+  left: 50%;
+  bottom: 70px;
+  width: 50px;
+  height: 46px;
+  margin-left: -25px;
+  display: grid;
+  place-items: end center;
+  padding-bottom: 4px;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  background: var(--sun);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1;
+  animation: tg-signbob 0.3s ease-in-out infinite alternate;
+}
+@keyframes tg-signbob {
+  from {
+    transform: translateY(0) scale(1);
+  }
+  to {
+    transform: translateY(-8px) scale(1.1);
+  }
+}
+.tg-band {
+  position: absolute;
+  height: 62px;
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  background: repeating-linear-gradient(-45deg, rgba(255, 59, 78, 0.5) 0 14px, rgba(255, 59, 78, 0.14) 14px 28px);
+  background-size: 40px 40px;
+  animation: tg-march 0.5s linear infinite;
+  overflow: hidden;
+  pointer-events: none;
+}
+@keyframes tg-march {
+  to {
+    background-position: 40px 0;
+  }
+}
+.tg-band__fill {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 59, 78, 0.55);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  animation: tg-fillx var(--dur, 1s) linear forwards;
+}
+.tg-band.is-left .tg-band__fill {
+  transform-origin: 100% 50%;
+}
+@keyframes tg-fillx {
+  to {
+    transform: scaleX(1);
+  }
+}
+.tg-band__chevs {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+.tg-band__chevs svg {
+  width: calc(22px * var(--fxk));
+  height: calc(17px * var(--fxk));
+  overflow: visible;
+  animation: tg-chev 0.45s ease-in-out calc(var(--i, 0) * -0.09s) infinite alternate;
+}
+@keyframes tg-chev {
+  from {
+    transform: translateY(6px);
+    opacity: 0.55;
+  }
+  to {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}
+.tg-band__label,
+.tg-trail__label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  font-family: var(--font-display);
+  font-size: calc(24px * var(--fxk));
+  color: var(--white);
+  -webkit-text-stroke: 1.5px var(--ink);
+  text-shadow: 0 3px 0 var(--ink);
+  white-space: nowrap;
+  animation: tg-labelpulse 0.3s ease-in-out infinite alternate;
+}
+@keyframes tg-labelpulse {
+  to {
+    scale: 1.12;
+  }
+}
+.tg-trail {
+  position: absolute;
+  height: 10px;
+  border-radius: 6px;
+  background: repeating-linear-gradient(90deg, var(--sun) 0 18px, transparent 18px 32px);
+  background-size: 32px 10px;
+  animation: tg-march-x 0.35s linear infinite;
+  box-shadow: 0 0 0 3px rgba(14, 6, 32, 0.5);
+  pointer-events: none;
+}
+.tg-trail.is-left {
+  animation-direction: reverse;
+}
+@keyframes tg-march-x {
+  to {
+    background-position: 32px 0;
+  }
+}
+.tg-trail__label {
+  top: -26px;
+  color: var(--sun);
+}
+
+/* ---------------------------------------------------------
+   Projectiles
+   --------------------------------------------------------- */
+.tg-wave {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 80px;
+  height: 60px;
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+.tg-wave svg {
+  animation: tg-wavewob 0.16s ease-in-out infinite alternate;
+  transform-origin: 50% 100%;
+}
+@keyframes tg-wavewob {
+  to {
+    transform: scaleY(1.12);
+  }
+}
+.tg-bat {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
+}
+.tg-bat > svg {
+  position: relative;
+}
+.tg-bat__ghost {
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  rotate: -24deg;
+}
+.tg-bat__ghost--2 {
+  opacity: 0.16;
+  rotate: -48deg;
+}
+.tg-bat.is-ccw .tg-bat__ghost {
+  rotate: 24deg;
+}
+.tg-bat.is-ccw .tg-bat__ghost--2 {
+  rotate: 48deg;
+}
+.tg-drop-shadow {
+  position: absolute;
+  top: calc(470px - 12px);
+  width: 68px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(8, 2, 20, 0.75), rgba(8, 2, 20, 0.25));
+  transform: scale(0.25);
+  animation: tg-grow var(--dur, 1s) ease-in forwards;
+  pointer-events: none;
+}
+.tg-drop-shadow__x {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 3px dashed var(--danger);
+  animation: tg-ringpulse 0.2s ease-in-out infinite alternate;
+}
+.tg-drop {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 46px;
+  height: 96px;
+  display: grid;
+  place-items: end center;
+  will-change: transform;
+}
+.tg-drop__text {
+  padding: 5px 6px;
+  border: 3px solid var(--ink);
+  border-radius: 8px;
+  background: var(--sun);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1;
+  box-shadow: 0 4px 0 var(--ink);
+}
+/* ---------------------------------------------------------
+   Floating feedback (arena units)
+   --------------------------------------------------------- */
+.tg-fx {
+  position: absolute;
+  pointer-events: none;
+  translate: -50% -100%;
+  font-family: var(--font-display);
+  line-height: 1;
+  white-space: nowrap;
+  text-transform: uppercase;
+  -webkit-text-stroke: 2px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0 4px 0 var(--ink);
+  z-index: 3;
+}
+.tg-fx > span {
+  display: block;
+  animation: tg-rise 1.1s var(--ease-out) forwards;
+}
+@keyframes tg-rise {
+  0% {
+    transform: translateY(16px) scale(0.3);
+    opacity: 0;
+  }
+  18% {
+    transform: translateY(-6px) scale(1.25);
+    opacity: 1;
+  }
+  32% {
+    transform: translateY(-12px) scale(1);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-64px) scale(0.95);
+    opacity: 0;
+  }
+}
+.tg-fx--dmg {
+  font-size: calc(38px * var(--fxk));
+  color: var(--sun);
+}
+.tg-fx--crit {
+  font-size: calc(52px * var(--fxk));
+  color: var(--hot);
+}
+.tg-fx--crit > span {
+  animation-duration: 1.3s;
+}
+.tg-fx--dodge {
+  font-size: calc(30px * var(--fxk));
+  color: var(--acid);
+}
+.tg-fx--dodge > span {
+  rotate: -7deg;
+}
+.tg-fx--streak {
+  font-size: calc(20px * var(--fxk));
+  color: var(--cyan);
+}
+.tg-fx--hit {
+  font-size: calc(30px * var(--fxk));
+  color: var(--danger);
+}
+.tg-fx--hit > span {
+  rotate: 6deg;
+}
+.tg-fx--selfbonk {
+  font-size: calc(30px * var(--fxk));
+  color: var(--cyan);
+}
+.tg-fx--far {
+  font-size: calc(18px * var(--fxk));
+  color: var(--lilac);
+}
+.tg-fx--wake {
+  font-size: calc(40px * var(--fxk));
+  color: var(--white);
+}
+.tg-fx--wake > span {
+  animation-duration: 1.2s;
+}
+.tg-fx--heal {
+  font-size: calc(34px * var(--fxk));
+  color: var(--acid);
+}
+.tg-fx--shatter {
+  font-size: calc(22px * var(--fxk));
+  color: var(--sun);
+}
+.tg-fx--shatter > span {
+  animation: tg-shatter 0.7s var(--ease-out) forwards;
+}
+@keyframes tg-shatter {
+  0% {
+    transform: scale(0.4) rotate(-10deg);
+    opacity: 1;
+  }
+  30% {
+    transform: scale(1.3) rotate(4deg);
+  }
+  100% {
+    transform: translateY(-30px) scale(1) rotate(0);
+    opacity: 0;
+  }
+}
+.tg-fx--hammer {
+  width: 170px;
+  height: 170px;
+  translate: -30% -95%;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+.tg-fx--hammer svg {
+  transform-origin: 85% 90%;
+  animation: tg-hammer 0.55s var(--ease-out) forwards;
+}
+@keyframes tg-hammer {
+  0% {
+    transform: rotate(-75deg) scale(0.6);
+    opacity: 0;
+  }
+  35% {
+    transform: rotate(18deg) scale(1.05);
+    opacity: 1;
+  }
+  50% {
+    transform: rotate(8deg) scale(1, 0.9);
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(-20deg) scale(0.9);
+    opacity: 0;
+  }
+}
+.tg-fx--dust {
+  width: 0;
+  height: 0;
+  translate: 0 0;
+}
+.tg-fx--dust span {
+  --sz: 34px;
+  --rise: -40px;
+  --dx: calc((var(--i) - 2.5) * 30px);
+  position: absolute;
+  left: calc(var(--sz) / -2);
+  top: calc(var(--sz) / -1);
+  width: var(--sz);
+  height: var(--sz);
+  border-radius: 50%;
+  border: 2.5px solid var(--ink);
+  background: radial-gradient(circle at 35% 30%, #e9e0ff, #a58bd8 60%);
+  animation: tg-dust 0.7s var(--ease-out) forwards;
+}
+.tg-fx--dust span:nth-child(1) {
+  --sz: 26px;
+  --rise: -22px;
+  --dx: -88px;
+}
+.tg-fx--dust span:nth-child(2) {
+  --sz: 40px;
+  --rise: -50px;
+  --dx: -46px;
+}
+.tg-fx--dust span:nth-child(3) {
+  --sz: 30px;
+  --rise: -70px;
+  --dx: -12px;
+}
+.tg-fx--dust span:nth-child(4) {
+  --sz: 44px;
+  --rise: -44px;
+  --dx: 30px;
+}
+.tg-fx--dust span:nth-child(5) {
+  --sz: 24px;
+  --rise: -60px;
+  --dx: 64px;
+}
+.tg-fx--dust span:nth-child(6) {
+  --sz: 30px;
+  --rise: -18px;
+  --dx: 96px;
+}
+@keyframes tg-dust {
+  0% {
+    transform: translate(0, 8px) scale(0.2);
+    opacity: 1;
+  }
+  60% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(var(--dx), var(--rise)) scale(1.2);
+    opacity: 0;
+  }
+}
+.tg-fx--tap {
+  width: 54px;
+  height: 18px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  border: 3px solid var(--acid);
+  animation: tg-tap 0.5s var(--ease-out) forwards;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+@keyframes tg-tap {
+  from {
+    transform: scale(0.2);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+.tg-fx--slash {
+  width: 250px;
+  height: 92px;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+.tg-fx--slash svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform-origin: 0% 100%;
+  animation: tg-slash 0.42s var(--ease-out) forwards;
+}
+.tg-fx--slash.is-left svg {
+  transform-origin: 100% 100%;
+}
+@keyframes tg-slash {
+  0% {
+    transform: scaleX(0.05) scaleY(0.6);
+    opacity: 1;
+  }
+  45% {
+    transform: scaleX(1) scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1.05) scaleY(1.1);
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------
+   Screen-space UI
+   --------------------------------------------------------- */
+.tg-ui {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.tg-ui .burst {
+  pointer-events: none;
+}
+.tg-flash {
+  position: fixed;
+  inset: 0;
+  animation: tg-flash 0.38s ease-out forwards;
+}
+.tg-flash--red {
+  background: radial-gradient(closest-side, rgba(255, 59, 78, 0) 55%, rgba(255, 59, 78, 0.55));
+}
+.tg-flash--white {
+  background: rgba(246, 241, 255, 0.75);
+}
+.tg-flash--hot {
+  background: rgba(255, 62, 165, 0.28);
+}
+@keyframes tg-flash {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.tg-say {
+  position: absolute;
+  width: max-content;
+  max-width: min(400px, calc(100% - 16px));
+}
+.tg-say--above {
+  translate: 0 -100%;
+}
+.tg-say--top {
+  display: flex;
+  width: auto;
+  max-width: none;
+  translate: 0 -100%;
+}
+.tg-say .bubble {
+  max-width: 100%;
+}
+
+.tg-banner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 42%;
+  translate: 0 -50%;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 22px var(--gutter) 26px;
+  text-align: center;
+  isolation: isolate;
+}
+.tg-banner__strip {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: repeating-linear-gradient(-55deg, var(--grape-800) 0 22px, var(--grape-700) 22px 44px);
+  border-block: 5px solid var(--ink);
+  box-shadow: 0 0 0 3px var(--violet), 0 20px 40px rgba(0, 0, 0, 0.5);
+  rotate: -3deg;
+}
+.tg-banner--p2 .tg-banner__strip {
+  background: repeating-linear-gradient(-55deg, #5a1240 0 22px, #7a1a55 22px 44px);
+  box-shadow: 0 0 0 3px var(--hot), 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+.tg-banner--p3 .tg-banner__strip {
+  background: repeating-linear-gradient(-55deg, #6a0f1e 0 22px, #8f1428 22px 44px);
+  box-shadow: 0 0 0 3px var(--danger), 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+.tg-banner__small {
+  font-family: var(--font-pixel);
+  font-size: clamp(0.62rem, 1.4vw, 0.85rem);
+  color: var(--acid);
+  letter-spacing: 0.08em;
+}
+.tg-banner__big {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 7.5vw, 5.2rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: var(--mist);
+  text-wrap: balance;
+  text-shadow:
+    0 3px 0 var(--violet),
+    0 6px 0 var(--grape-700),
+    0 9px 0 var(--ink),
+    0 0 40px rgba(139, 77, 255, 0.6);
+}
+.tg-banner--p3 .tg-banner__big {
+  color: #ffe1e6;
+  font-size: clamp(1.7rem, 6vw, 4.4rem);
+  text-shadow:
+    0 3px 0 var(--danger),
+    0 6px 0 #8f1428,
+    0 9px 0 var(--ink),
+    0 0 40px rgba(255, 59, 78, 0.6);
+}
+.tg-banner__fight {
+  font-family: var(--font-marker);
+  font-size: clamp(1.1rem, 2.6vw, 1.8rem);
+  color: var(--sun);
+  rotate: -2deg;
+  text-shadow: 0 3px 0 var(--ink);
+}
+.tg-banner--ko {
+  top: 36%;
+}
+.tg-banner--ko .tg-banner__big {
+  font-size: clamp(4rem, 16vw, 10rem);
+  color: var(--sun);
+  text-shadow:
+    0 4px 0 var(--tangerine),
+    0 8px 0 #b3531a,
+    0 12px 0 var(--ink),
+    0 0 60px rgba(255, 210, 63, 0.6);
+}
+.tg-banner--ko .tg-banner__small {
+  font-size: clamp(0.8rem, 2vw, 1.1rem);
+  padding: 8px 12px;
+  background: var(--ink);
+  border-radius: 8px;
+}
+
+.tg-hint {
+  position: absolute;
+  left: 50%;
+  translate: -50% 0;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  padding: 9px 14px 10px;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  background: var(--sun);
+  color: var(--ink);
+  font-family: var(--font-pixel);
+  font-size: clamp(0.56rem, 1.2vw, 0.72rem);
+  line-height: 1.5;
+  text-align: center;
+  box-shadow: 0 5px 0 var(--ink), 0 0 24px rgba(255, 210, 63, 0.4);
+  rotate: -1deg;
+}
+.tg-hint--bonk,
+.tg-hint--mercy {
+  background: var(--hot);
+  color: var(--white);
+  box-shadow: 0 5px 0 var(--ink), var(--glow-hot);
+}
+
+.tg-paused {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  translate: -50% -50%;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 14px 26px 16px;
+  border: 4px solid var(--ink);
+  border-radius: 18px;
+  background: var(--sun);
+  color: var(--ink);
+  box-shadow: 0 6px 0 var(--ink), 0 0 0 4px var(--white), 0 18px 40px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+.tg-paused b {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+.tg-paused small {
+  font-family: var(--font-marker);
+  font-size: clamp(0.95rem, 2vw, 1.15rem);
+}
+.tg-respawn {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  translate: -50% -50%;
+  width: min(560px, calc(100% - 32px));
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 22px 20px 24px;
+  border: 4px solid var(--ink);
+  border-radius: 24px;
+  background: var(--grape-900);
+  box-shadow: var(--shadow-pop), 0 0 0 4px var(--danger);
+  text-align: center;
+}
+.tg-respawn__big {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 4.4vw, 2.4rem);
+  line-height: 1;
+  color: #ffd0d6;
+  text-transform: uppercase;
+  text-shadow: 0 3px 0 var(--danger), 0 6px 0 var(--ink);
+  text-wrap: balance;
+}
+.tg-respawn__but {
+  font-family: var(--font-marker);
+  color: var(--lavender);
+  font-size: clamp(1rem, 2.2vw, 1.3rem);
+}
+.tg-respawn__heal {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  line-height: 1;
+  color: var(--acid);
+  text-shadow: 0 4px 0 var(--ink), var(--glow-acid);
+}
+.tg-respawn__hearts {
+  display: flex;
+  gap: 6px;
+}
+.tg-respawn__hearts > span {
+  width: 30px;
+  height: 27px;
+}
+
+/* how-to card */
+.tg-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: min(540px, calc(100% - 24px));
+  max-height: calc(100% - 16px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 34px clamp(16px, 4vw, 30px) 22px;
+  border: 4px solid var(--ink);
+  border-radius: 28px;
+  background:
+    radial-gradient(120% 70% at 50% 0%, rgba(139, 77, 255, 0.35), rgba(139, 77, 255, 0) 70%),
+    var(--grape-900);
+  box-shadow: var(--shadow-pop), 0 0 0 3px var(--violet), 0 0 70px rgba(139, 77, 255, 0.35);
+  text-align: center;
+  pointer-events: auto;
+  cursor: default;
+}
+@media (min-width: 1100px) {
+  .tg-card {
+    left: 36%;
+  }
+}
+@media (max-width: 600px) {
+  .tg-howto li {
+    grid-template-columns: auto minmax(0, 1fr);
+    font-size: 0.9rem;
+    padding: 7px 10px;
+  }
+  .tg-howto__keys {
+    justify-content: flex-start;
+    min-width: 78px;
+  }
+}
+@media (max-height: 800px) {
+  .tg-card {
+    gap: 7px;
+    padding: 30px 16px 16px;
+  }
+  .tg-card__title {
+    font-size: clamp(1.5rem, 4.2vw, 2.2rem);
+  }
+  .tg-card__kicker {
+    font-size: 0.92rem;
+  }
+  .tg-howto {
+    gap: 5px;
+  }
+  .tg-howto li {
+    padding: 5px 10px;
+    font-size: 0.86rem;
+    line-height: 1.25;
+  }
+  .tg-key {
+    min-width: 28px;
+    height: 28px;
+  }
+  .tg-card__rules {
+    font-size: 0.82rem;
+    margin-bottom: 2px;
+  }
+  .tg-card .bb--xl {
+    font-size: 1.15rem;
+  }
+}
+.tg-card__tape {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  top: 8px;
+  height: 22px;
+  overflow: hidden;
+  background: repeating-linear-gradient(-45deg, var(--sun) 0 14px, var(--ink) 14px 28px);
+  rotate: -2deg;
+  border-block: 2px solid var(--ink);
+}
+.tg-card__tape span {
+  display: block;
+  width: max-content;
+  margin: 2px auto 0;
+  padding: 1px 8px;
+  background: var(--sun);
+  color: var(--ink);
+  font-family: var(--font-pixel);
+  font-size: 0.55rem;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+.tg-card__eyebrow {
+  margin-top: 6px;
+  font-family: var(--font-pixel);
+  font-size: 0.7rem;
+  color: var(--acid);
+  letter-spacing: 0.12em;
+}
+.tg-card__title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.7rem, 5vw, 2.8rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: var(--sun);
+  text-wrap: balance;
+  text-shadow:
+    0 3px 0 var(--tangerine),
+    0 6px 0 #9a4a1a,
+    0 9px 0 var(--ink);
+  rotate: -1.5deg;
+}
+.tg-card__kicker {
+  font-family: var(--font-marker);
+  color: var(--lavender);
+  font-size: 1.05rem;
+  rotate: 1deg;
+}
+.tg-howto {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  width: 100%;
+  display: grid;
+  gap: 8px;
+}
+.tg-howto li {
+  display: grid;
+  grid-template-columns: minmax(0, 46%) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(233, 224, 255, 0.07);
+  border: 2px solid rgba(201, 179, 255, 0.16);
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--lilac);
+}
+.tg-howto__keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: flex-end;
+}
+.tg-card__rules {
+  font-size: 0.9rem;
+  color: var(--lavender);
+  max-width: 44ch;
+  margin-bottom: 6px;
+}
+.tg-card__rules strong {
+  color: var(--acid);
+}
+.tg-key {
+  display: inline-grid;
+  place-items: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 7px;
+  border: 2.5px solid var(--ink);
+  border-radius: 9px;
+  background: var(--lilac);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  line-height: 1;
+  text-transform: uppercase;
+  box-shadow: 0 3px 0 var(--ink), inset 0 -3px 0 rgba(14, 6, 32, 0.15);
+  white-space: nowrap;
+}
+.tg-key--wide {
+  padding: 0 10px;
+}
+.tg-skip {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 2px solid rgba(201, 179, 255, 0.4);
+  border-radius: var(--radius-pill);
+  background: rgba(14, 6, 32, 0.55);
+  color: var(--lavender);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  pointer-events: auto;
+}
+.tg-skip:hover {
+  color: var(--white);
+  border-color: var(--lavender);
+}
+
+/* results bar (takes the HUD's slot after the KO) */
+.tg-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 9px 22px 10px;
+  border: 3px solid var(--ink);
+  border-radius: 18px;
+  background: var(--acid);
+  color: var(--ink);
+  box-shadow: 0 5px 0 var(--ink), var(--glow-acid);
+  rotate: -0.6deg;
+}
+.tg-stats__title {
+  font-family: var(--font-pixel);
+  font-size: 0.62rem;
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+.tg-stats__row {
+  display: flex;
+  gap: 18px;
+}
+.tg-stats__item {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+}
+.tg-stats__item b {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.tg-stats__item small {
+  font-family: var(--font-pixel);
+  font-size: 0.45rem;
+}
+@media (max-width: 767px) {
+  .tg-stats {
+    gap: 12px;
+    padding: 7px 10px 8px;
+    border-radius: 14px;
+  }
+  .tg-stats__title {
+    font-size: 0.5rem;
+  }
+  .tg-stats__row {
+    gap: 10px;
+  }
+  .tg-stats__item b {
+    font-size: 1.1rem;
+  }
+  .tg-stats__item small {
+    font-size: 0.4rem;
+  }
+}
+/* end buttons: NEXT dead centre (clear of the music pill), rematch beside it */
+.tg-endrow {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+}
+.tg-endrow__sub {
+  justify-self: start;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+@media (max-width: 560px) {
+  .tg-endrow {
+    grid-template-columns: auto auto;
+    justify-content: center;
+    gap: 10px;
+  }
+  .tg-endrow__pad {
+    display: none;
+  }
+  /* narrow: rematch shrinks to its ↺ icon (label stays for screen readers) */
+  .tg-endrow__sub .bb__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+  .tg-endrow__sub .bb__face {
+    min-width: 50px;
+    min-height: 46px;
+    justify-content: center;
+    padding-inline: 0.8em;
+    font-size: 1.1rem;
+  }
+  .tg-endrow__sub .bb__icon {
+    margin: 0;
+  }
+}
+@media (max-width: 400px) {
+  .tg-endrow {
+    gap: 8px;
+  }
+  .tg-endrow .next-cta .bb {
+    font-size: 0.9rem;
+  }
+}
+
+/* ---------------------------------------------------------
+   HUD
+   --------------------------------------------------------- */
+.tg-hud {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'player meter'
+    'player pips';
+  column-gap: 20px;
+  row-gap: 6px;
+  align-items: center;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 10px 16px 10px;
+  border: 3px solid var(--ink);
+  border-radius: 18px;
+  background: rgba(14, 6, 32, 0.62);
+  box-shadow: 0 5px 0 var(--ink);
+}
+.tg-hud__player {
+  grid-area: player;
+  display: grid;
+  gap: 6px;
+}
+.tg-hud__meter {
+  grid-area: meter;
+  min-width: 0;
+}
+.tg-hud__pips {
+  grid-area: pips;
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.tg-hud__name {
+  font-family: var(--font-pixel);
+  font-size: 0.6rem;
+  color: var(--acid);
+  letter-spacing: 0.08em;
+}
+.tg-hearts {
+  display: flex;
+  gap: 5px;
+}
+.tg-heart {
+  display: block;
+  width: 27px;
+  height: 24px;
+}
+.tg-pip {
+  padding: 3px 6px 4px;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  background: var(--grape-800);
+  color: var(--lavender);
+  font-family: var(--font-pixel);
+  font-size: 0.5rem;
+  opacity: 0.6;
+}
+.tg-pip.is-on {
+  background: var(--hot);
+  color: var(--white);
+  opacity: 1;
+  box-shadow: var(--glow-hot);
+}
+.tg-pip.is-done {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+.tg-pip--ko {
+  background: var(--sun);
+  color: var(--ink);
+  opacity: 1;
+}
+.tg-hud .meter__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .tg-hud {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'meter meter'
+      'player pips';
+    padding: 8px 10px 8px;
+    border-radius: 14px;
+    row-gap: 7px;
+  }
+  .tg-hud__player {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tg-heart {
+    width: 21px;
+    height: 19px;
+  }
+  .tg-hud__name {
+    font-size: 0.5rem;
+  }
+  .tg-hearts {
+    gap: 3px;
+  }
+  .tg-hud .meter--pixel .meter__top {
+    font-size: 0.5rem;
+  }
+  .tg-hud .meter--pixel .meter__track {
+    height: 16px;
+  }
+}
+
+/* ---------------------------------------------------------
+   Dock: touch pad / key legend / end buttons
+   --------------------------------------------------------- */
+.tg-dock {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tg--fight .tg-dock,
+.tg--victory .tg-dock {
+  min-height: 70px;
+}
+.tg--touch.tg--fight .tg-dock,
+.tg--touch.tg--victory .tg-dock {
+  min-height: 80px;
+}
+.tg-pad {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.tg-pad__side {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.tg-pad__btn {
+  display: grid;
+  place-items: center;
+  width: 66px;
+  height: 66px;
+  padding: 0;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--lavender);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 0 var(--ink), inset 0 3px 0 rgba(255, 255, 255, 0.5);
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.06s, box-shadow 0.06s;
+}
+.tg-pad__btn svg {
+  width: 26px;
+  height: 26px;
+  fill: var(--ink);
+}
+.tg-pad__btn.is-held {
+  transform: translateY(5px);
+  box-shadow: 0 1px 0 var(--ink), inset 0 3px 0 rgba(255, 255, 255, 0.5);
+  background: var(--lilac);
+}
+.tg-pad__btn--jump {
+  width: 82px;
+  height: 82px;
+  background: var(--acid);
+  font-size: 0.95rem;
+}
+.tg-pad__btn--bonk {
+  width: 62px;
+  height: 62px;
+  background: var(--hot);
+  color: var(--white);
+  font-size: 0.72rem;
+}
+.tg-pad__btn--bonk:disabled {
+  opacity: 0.35;
+  filter: none;
+  cursor: default;
+}
+.tg-pad__btn--bonk.is-ready {
+  box-shadow: 0 6px 0 var(--ink), var(--glow-hot);
+}
+@media (max-width: 380px) {
+  .tg-pad__side {
+    gap: 9px;
+  }
+  .tg-pad__btn {
+    width: 60px;
+    height: 60px;
+  }
+  .tg-pad__btn--jump {
+    width: 74px;
+    height: 74px;
+  }
+  .tg-pad__btn--bonk {
+    width: 56px;
+    height: 56px;
+  }
+}
+.tg-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px 18px;
+  padding: 8px 18px;
+  border: 2px solid rgba(201, 179, 255, 0.22);
+  border-radius: var(--radius-pill);
+  background: rgba(14, 6, 32, 0.55);
+  color: var(--lavender);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.tg-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.2s;
+}
+.tg-legend .tg-key {
+  min-width: 26px;
+  height: 26px;
+  font-size: 0.66rem;
+  box-shadow: 0 2px 0 var(--ink);
+}
+.tg-legend__item.is-hot {
+  color: var(--hot);
+  animation: tg-labelpulse 0.4s ease-in-out infinite alternate;
+}
+.tg-legend__item.is-hot .tg-key {
+  background: var(--hot);
+  color: var(--white);
+}
+/* ---------------------------------------------------------
+   Phones on their side (short landscape + touch pad)
+   The stage gets the whole screen: HUD floats over the sky, the pad
+   splits into thumb clusters in side columns the arena keeps clear of
+   (--tg-inset-*, read by the scene's layout), and the floor line stays
+   above the desktop music pill (bottom-left on ≥768px wide screens).
+   --------------------------------------------------------- */
+@media (orientation: landscape) and (max-height: 500px) {
+  .tg--touch .tg-stage {
+    --tg-inset-t: 54px;
+    --tg-inset-b: 8px;
+  }
+  .tg--touch.tg--fight .tg-stage {
+    --tg-inset-l: calc(150px + env(safe-area-inset-left, 0px));
+    --tg-inset-r: calc(160px + env(safe-area-inset-right, 0px));
+  }
+  .tg--touch.tg--victory .tg-stage {
+    --tg-inset-b: 78px;
+  }
+
+  /* abspos grid items with a grid-row would be placed in their (collapsed) row — use the padding box */
+  .tg--touch .shell__header,
+  .tg--touch .shell__hud,
+  .tg--touch .shell__dock {
+    grid-row: auto;
+  }
+  /* intro: compact title floating in the sky */
+  .tg--touch .shell__header {
+    position: absolute;
+    top: calc(var(--topbar-h) + var(--safe-top));
+    left: 0;
+    right: 0;
+    gap: 2px;
+    padding-top: 2px;
+  }
+  .tg--touch .shell__chip {
+    display: none;
+  }
+  .tg--touch .shell__title {
+    font-size: 1.15rem;
+  }
+  .tg--touch .shell__kicker {
+    font-size: 0.8rem;
+  }
+
+  /* HUD: one slim row over the sky */
+  .tg--touch .shell__hud {
+    position: absolute;
+    top: calc(var(--topbar-h) + var(--safe-top));
+    left: 0;
+    right: 0;
+    padding: 2px max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
+  }
+  .tg--touch .tg-hud {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'player meter pips';
+    column-gap: 14px;
+    max-width: 720px;
+    padding: 5px 12px 6px;
+    border-radius: 14px;
+    box-shadow: 0 4px 0 var(--ink);
+  }
+  .tg--touch .tg-hud__player {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .tg--touch .tg-hud__name {
+    font-size: 0.5rem;
+  }
+  .tg--touch .tg-hearts {
+    gap: 3px;
+  }
+  .tg--touch .tg-heart {
+    width: 19px;
+    height: 17px;
+  }
+  .tg--touch .tg-hud .meter--pixel .meter__top {
+    font-size: 0.5rem;
+  }
+  .tg--touch .tg-hud .meter--pixel .meter__track {
+    height: 13px;
+  }
+  .tg--touch .tg-hud__pips {
+    gap: 4px;
+  }
+  .tg--touch .tg-stats {
+    padding: 4px 14px 5px;
+    box-shadow: 0 4px 0 var(--ink);
+  }
+  .tg--touch .tg-stats__item b {
+    font-size: 1.05rem;
+  }
+
+  /* dock: overlaid, only its buttons take touches (the rest of the stage stays tappable) */
+  .tg--touch .shell__dock {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0 max(12px, env(safe-area-inset-right)) calc(10px + var(--safe-bottom)) max(12px, env(safe-area-inset-left));
+    pointer-events: none;
+  }
+  .tg--touch .tg-dock {
+    min-height: 0 !important;
+    pointer-events: none;
+  }
+  .tg--touch .tg-pad {
+    position: static;
+    max-width: none;
+    pointer-events: none;
+  }
+  .tg--touch .tg-pad__btn,
+  .tg--touch .tg-pad__dpad,
+  .tg--touch .tg-endrow {
+    pointer-events: auto;
+  }
+  .tg--touch .tg-pad__side {
+    position: absolute;
+    bottom: calc(10px + var(--safe-bottom));
+  }
+  .tg--touch .tg-pad__side:first-child {
+    left: max(12px, env(safe-area-inset-left));
+  }
+  .tg--touch .tg-pad__side:last-child {
+    right: max(12px, env(safe-area-inset-right));
+  }
+  .tg--touch .tg-pad__btn {
+    width: 58px;
+    height: 58px;
+  }
+  .tg--touch .tg-pad__btn--jump {
+    width: 70px;
+    height: 70px;
+  }
+  .tg--touch .tg-pad__btn--bonk {
+    width: 56px;
+    height: 56px;
+  }
+
+  .tg-respawn {
+    top: calc(50% + 20px);
+    gap: 4px;
+    padding: 12px 16px 14px;
+    width: min(460px, calc(100% - 32px));
+  }
+  .tg-respawn__big {
+    font-size: 1.3rem;
+  }
+  .tg-respawn__but {
+    font-size: 0.95rem;
+  }
+  .tg-respawn__heal {
+    font-size: 1.9rem;
+    gap: 4px;
+  }
+  .tg-respawn__hearts > span {
+    width: 22px;
+    height: 20px;
+  }
+
+  /* how-to card: two columns so it fits without scrolling */
+  .tg--touch .tg-card {
+    width: min(780px, calc(100% - 24px));
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    grid-template-areas:
+      'eyebrow list'
+      'title list'
+      'kicker list'
+      'rules list'
+      'go go';
+    column-gap: 20px;
+    row-gap: 4px;
+    justify-items: start;
+    align-items: center;
+    padding: 40px 18px 12px;
+    text-align: left;
+  }
+  .tg--touch .tg-card__eyebrow {
+    grid-area: eyebrow;
+    margin-top: 6px;
+  }
+  .tg--touch .tg-card__title {
+    grid-area: title;
+    font-size: 1.55rem;
+  }
+  .tg--touch .tg-card__kicker {
+    grid-area: kicker;
+    font-size: 0.9rem;
+  }
+  .tg--touch .tg-card__rules {
+    grid-area: rules;
+    font-size: 0.8rem;
+    margin: 0;
+  }
+  .tg--touch .tg-howto {
+    grid-area: list;
+    margin: 0;
+    gap: 5px;
+  }
+  .tg--touch .tg-howto li {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+  }
+  .tg--touch .tg-card > .bb {
+    grid-area: go;
+    justify-self: center;
+    margin-top: 6px;
+  }
+  .tg--touch .tg-card .bb--xl {
+    font-size: 1.1rem;
+  }
+}
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 768px) {
+  /* the music player docks as a 48px disc bottom-left (12px from the edges) */
+  .tg--touch .tg-stage {
+    --tg-avoid-l: 76px;
+  }
+  .tg--touch .tg-pad__side:first-child {
+    bottom: calc(76px + var(--safe-bottom));
+  }
+  .tg--touch .shell__dock {
+    padding-left: 76px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tg--p3.tg--fight .tg-wobble,
+  .tg--p3.tg--fight .tg-chaos {
+    animation: none;
+  }
+  /* phase 3 still reads as phase 3, just without strobing: windows simply on, shouts fade in place */
+  .tg--p3.tg--fight .tg-nwin {
+    animation: none;
+    opacity: 1;
+  }
+  .tg--p3.tg--fight .tg-shout--a,
+  .tg--p3.tg--fight .tg-shout--b {
+    animation-name: tg-shout-still !important;
+    animation-duration: 2.6s !important;
+  }
+  .tg-arena {
+    transition: none;
+  }
+  /* the global reduced-motion rule zeroes every animation: keep what carries information —
+     telegraph timers fill for real, feedback words fade in place instead of vanishing instantly */
+  .tg .tg-marker__fill,
+  .tg .tg-band__fill,
+  .tg .tg-drop-shadow {
+    animation-duration: var(--dur, 1s) !important;
+  }
+  .tg .tg-fx > span,
+  .tg .tg-fx--shatter > span {
+    animation-name: tg-fade-still !important;
+    animation-duration: 1.1s !important;
+  }
+}
+@keyframes tg-shout-still {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  6%,
+  86% {
+    opacity: 1;
+  }
+}
+@keyframes tg-fade-still {
+  0%,
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

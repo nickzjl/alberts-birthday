@@ -1,0 +1,751 @@
+/* =========================================================
+   Experience 01 — Cartman's Birthday Roast   (prefix: cms-)
+   ========================================================= */
+
+/* ---------- Backdrop: cut-out mountain town at night ---------- */
+.cms-bd {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--grape-950);
+}
+.cms-bd__sky {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 60% at 50% 74%, rgba(139, 77, 255, 0.55) 0%, rgba(139, 77, 255, 0) 60%),
+    linear-gradient(180deg, #0b0416 0%, #160832 28%, #2a1158 55%, #4b23a0 74%, #2a1158 100%);
+}
+.cms-bd__stars {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 66%;
+}
+.cms-star {
+  fill: var(--mist);
+  opacity: 0.75;
+}
+.cms-star--tw {
+  animation: cms-twinkle var(--d) ease-in-out var(--dl) infinite alternate;
+}
+@keyframes cms-twinkle {
+  from {
+    opacity: 0.15;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.cms-bd__moon-wrap {
+  position: absolute;
+  right: 8%;
+  top: 15%;
+  width: clamp(60px, 9vw, 132px);
+  aspect-ratio: 1;
+}
+@media (min-width: 600px) and (max-width: 859px) {
+  .cms-bd__moon-wrap {
+    right: 3%;
+    top: 23%;
+  }
+}
+@media (max-width: 599px) {
+  .cms-bd__moon-wrap {
+    right: -3%;
+    top: 29%;
+    width: 64px;
+  }
+}
+.cms-moon {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  animation: cms-bob 7s ease-in-out infinite alternate;
+}
+.cms-moon::before {
+  content: '';
+  position: absolute;
+  inset: -70%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(201, 179, 255, 0.5) 0%, rgba(139, 77, 255, 0.2) 45%, transparent 100%);
+  transition: opacity 1.2s;
+}
+.cms-moon::after {
+  content: '';
+  position: absolute;
+  inset: -70%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 59, 78, 0.6) 0%, rgba(255, 59, 78, 0.22) 45%, transparent 100%);
+  opacity: 0;
+  transition: opacity 1.2s;
+}
+.cms-moon--blood::after {
+  opacity: 1;
+}
+.cms-moon svg {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.cms-moon__disc {
+  fill: var(--mist);
+  stroke: var(--ink);
+  stroke-width: 3;
+  transition: fill 1.2s;
+}
+.cms-moon__crater {
+  fill: #d9ccff;
+  transition: fill 1.2s;
+}
+.cms-moon--blood .cms-moon__disc {
+  fill: #ff9aa6;
+}
+.cms-moon--blood .cms-moon__crater {
+  fill: #e4566a;
+}
+@keyframes cms-bob {
+  from {
+    translate: 0 -4px;
+  }
+  to {
+    translate: 0 6px;
+  }
+}
+
+.cms-bd__layer {
+  position: absolute;
+  left: -4%;
+  width: 108%;
+  transform-origin: 50% 100%;
+}
+.cms-bd__layer > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.cms-bd__far {
+  bottom: 25%;
+  height: 44%;
+}
+.cms-bd__mid {
+  bottom: 25%;
+  height: 32%;
+}
+.cms-bd__hills {
+  bottom: 24%;
+  height: 15%;
+}
+.cms-bd__town {
+  bottom: 24.5%;
+  height: 30%;
+}
+.cms-bd__ground {
+  bottom: -2%;
+  height: 30%;
+}
+
+.cms-house,
+.cms-pine,
+.cms-sign {
+  position: absolute;
+  bottom: 0;
+}
+.cms-house {
+  aspect-ratio: 140 / 130;
+}
+.cms-pine {
+  aspect-ratio: 80 / 140;
+  bottom: -2%;
+}
+.cms-sign {
+  aspect-ratio: 150 / 120;
+}
+.cms-house svg,
+.cms-pine svg,
+.cms-sign svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.cms-win {
+  transition: fill 0.25s;
+}
+.cms-glow {
+  transition: opacity 0.6s;
+}
+.cms-sign__small {
+  font-family: var(--font-display);
+  font-size: 13px;
+  fill: var(--grape-700);
+  letter-spacing: 0.06em;
+}
+.cms-sign__big {
+  font-family: var(--font-display);
+  font-size: 17px;
+  fill: var(--danger);
+}
+
+.cms-bd__snow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.cms-flake {
+  position: absolute;
+  top: 0;
+  left: var(--x);
+  width: var(--s);
+  height: var(--s);
+  animation: cms-fall var(--d) linear var(--dl) infinite;
+  will-change: transform;
+}
+.cms-flake i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--mist);
+  opacity: var(--o);
+  animation: cms-sway var(--sway) ease-in-out infinite alternate;
+}
+@keyframes cms-fall {
+  from {
+    transform: translate3d(0, -5vh, 0);
+  }
+  to {
+    transform: translate3d(var(--drift), 105vh, 0);
+  }
+}
+@keyframes cms-sway {
+  from {
+    translate: -7px 0;
+  }
+  to {
+    translate: 7px 0;
+  }
+}
+
+.cms-bd__tint {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(120, 0, 40, 0.42) 0%, rgba(230, 30, 70, 0.4) 62%, rgba(255, 59, 78, 0.46) 100%);
+  transition: opacity 1.1s var(--ease-out);
+}
+.cms-bd__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 0.9s var(--ease-out);
+}
+.cms-bd__vignette::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 75% 70% at 50% 55%, transparent 45%, rgba(255, 20, 60, 0.5) 85%, rgba(150, 0, 30, 0.85) 100%);
+  animation: cms-pulse 0.9s ease-in-out infinite alternate;
+}
+@keyframes cms-pulse {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---------- HUD ---------- */
+.cms-hud {
+  display: flex;
+  justify-content: center;
+  gap: clamp(10px, 2vw, 22px);
+  max-width: 780px;
+  margin: 0 auto;
+}
+.cms-panel {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px 10px 10px;
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  background: rgba(27, 10, 58, 0.86);
+  box-shadow: 0 5px 0 var(--ink), 0 12px 24px rgba(6, 0, 20, 0.35);
+}
+.cms-panel--apology {
+  rotate: -1deg;
+}
+.cms-panel--anger {
+  rotate: 1deg;
+}
+.cms-panel__icon {
+  flex: none;
+  width: 30px;
+  height: 30px;
+}
+.cms-panel--overload {
+  background: rgba(90, 0, 30, 0.9);
+}
+.cms-panel--overload .meter__track {
+  box-shadow: 0 3px 0 var(--ink), 0 0 18px rgba(255, 59, 78, 0.95);
+  animation: bubble-jitter 0.06s steps(2) infinite;
+}
+.cms-meter-overload .meter__fill {
+  animation: cms-flash 0.14s steps(2) infinite;
+}
+.cms-meter-overload .meter__readout {
+  color: var(--danger);
+}
+@keyframes cms-flash {
+  50% {
+    filter: brightness(2.2) saturate(0.4);
+  }
+}
+.cms-broken__track {
+  display: block;
+  width: 100%;
+  height: 24px;
+}
+.cms-broken__readout {
+  color: var(--danger) !important;
+}
+.cms-shards {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+.cms-shard {
+  position: absolute;
+  top: 58%;
+  border: 2px solid var(--ink);
+  border-radius: 2px;
+}
+
+/* ---------- Stage layout ---------- */
+.cms-stage {
+  position: absolute;
+  inset: 0;
+  container: cms / size;
+}
+/*
+ * Stacked layout (phones, tablets portrait): bubble above Cartman.
+ * --S = Cartman's box size, --cx = his horizontal center.
+ */
+.cms-layout {
+  position: absolute;
+  inset: 0;
+  --bz: clamp(150px, 31cqh, 200px);
+  /* his jacket alone spans ~95% of the box, so leave side room for squash, flailing mittens, the pointing finger */
+  --S: clamp(150px, min(480px, 80cqw, calc(100cqh - var(--bz))), 480px);
+  --cx: 50cqw;
+}
+.cms-rigpos {
+  position: absolute;
+  z-index: 1;
+  bottom: 4px;
+  left: calc(var(--cx) - var(--S) / 2);
+  width: var(--S);
+  height: var(--S);
+  transform-origin: 50% 100%;
+}
+.cms-rig {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+/* poking him is an easter egg: only advertise it while it actually does something */
+.cms-rig--poke {
+  cursor: pointer;
+}
+.cms-shadow {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: -4%;
+  height: 10%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(14, 6, 32, 0.6), rgba(14, 6, 32, 0));
+}
+.cms-bursts {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+/* reduced motion: the shared burst can't animate its pop, so it would jump to its 1.5x exit size; keep it still */
+.cms-bursts .cms-burst--still {
+  transform: rotate(var(--rot, -8deg)) !important;
+}
+.cms-bubblepos {
+  position: absolute;
+  z-index: 3;
+  left: 50cqw;
+  translate: -50% 0;
+  bottom: calc(var(--S) * 0.97 + 26px);
+  width: min(94cqw, 540px);
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+.cms-bubblepos .bubble {
+  max-width: 100%;
+  pointer-events: auto;
+}
+/*
+ * stacked: while he flails the bubble backs off a little (room for the bursts above his hat) and
+ * narrows, so the big screen shake can't push its edges off a phone screen. The scream is short anyway.
+ */
+.cms-layout--tantrum .cms-bubblepos:not(.cms-bubblepos--side) {
+  bottom: calc(var(--S) * 1.1 + 26px);
+  width: min(84cqw, 540px);
+}
+
+/*
+ * Side-by-side layout (laptops, desktops, landscape phones): bubble beside his head.
+ * Same condition as SIDE_MQ in CartmanScene.tsx (decides the bubble tail) — keep them in sync.
+ */
+@media (min-width: 860px), (orientation: landscape) and (max-height: 500px) and (min-width: 560px) {
+  .cms-layout {
+    --W: min(430px, 36cqw);
+    --S: clamp(140px, min(480px, 54vh, 92cqh), 480px);
+    --cx: calc(50cqw + var(--S) * 0.08 - var(--W) / 2);
+  }
+  .cms-bubblepos--side {
+    left: calc(var(--cx) + var(--S) * 0.44 + 28px);
+    transition: left 0.35s var(--ease-out);
+    translate: 0 50%;
+    bottom: calc(var(--S) * 0.66);
+    width: var(--W);
+    justify-content: flex-start;
+  }
+  .cms-bubblepos--side .bubble {
+    transform-origin: 0% 50%;
+  }
+  /* steam puffs billow out of his right ear: the bubble's tail backs off while he's venting */
+  .cms-bubblepos--side.cms-bubblepos--steam {
+    left: calc(var(--cx) + var(--S) * 0.5 + 34px);
+  }
+  .cms-bubblepos--side .cms-caption {
+    left: 0;
+    bottom: -1.2em;
+    translate: 0 0;
+  }
+}
+
+/*
+ * Emphasis: the shared wobble also scales the word up, which on a long shouted phrase
+ * ("RESPECT MY AUTHORITAH!") eats the space next to it. Rotate-only wobble, so the chips
+ * need almost no side margin (more just reads as a double space between two loud words).
+ */
+.cms-bubblepos .tw-em {
+  margin-inline: 0.04em;
+  animation-name: cms-em-wobble;
+}
+@keyframes cms-em-wobble {
+  from {
+    transform: rotate(-2deg);
+  }
+  to {
+    transform: rotate(2deg) translateY(-1px);
+  }
+}
+
+/* closed caption for the dead-silence beat */
+.cms-caption {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  translate: -50% 0;
+  margin: 0;
+  padding: 6px 12px 7px;
+  border-radius: 6px;
+  background: rgba(8, 3, 20, 0.86);
+  color: #fff;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: clamp(0.85rem, 1.4vw, 1rem);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(6, 0, 20, 0.4);
+}
+
+/* ---------- Props ---------- */
+.cms-plate {
+  position: absolute;
+  z-index: 2;
+  left: 78%;
+  bottom: -2%;
+  width: 25%;
+  transform-origin: 50% 100%;
+  transition: left 0.45s var(--ease-out);
+}
+/* on the floor (sitting / tantrum) his right mitten lands where the label is: scoot the evidence over */
+.cms-rigpos--sit .cms-plate {
+  left: 86%;
+}
+.cms-plate svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+.cms-plate__note {
+  position: absolute;
+  bottom: 96%;
+  right: 4%;
+  font-family: var(--font-marker);
+  font-size: clamp(0.66rem, calc(var(--S) * 0.036), 1rem);
+  line-height: 1;
+  color: var(--sun);
+  white-space: nowrap;
+  rotate: -9deg;
+  text-shadow: 0 2px 0 var(--ink);
+}
+.cms-plate__note::after {
+  content: '';
+  position: absolute;
+  left: 8%;
+  top: 92%;
+  width: 0.7em;
+  height: 0.9em;
+  border-left: 2.5px solid var(--sun);
+  border-bottom: 2.5px solid var(--sun);
+  border-radius: 0 0 0 100%;
+  rotate: 10deg;
+}
+.cms-plate__smoke {
+  position: absolute;
+  left: 66%;
+  bottom: 70%;
+  width: 6%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(233, 224, 255, 0.55);
+  animation: cms-smoke 2.4s ease-out infinite;
+}
+@keyframes cms-smoke {
+  from {
+    transform: translate(0, 0) scale(0.6);
+    opacity: 0.8;
+  }
+  to {
+    transform: translate(8px, -40px) scale(2.4);
+    opacity: 0;
+  }
+}
+
+.cms-contract {
+  --room: calc(var(--cx) - var(--S) / 2); /* px between the stage edge and his box */
+  position: absolute;
+  z-index: 3;
+  /* stacked (phones): held low in front of his belly, wide and short so the top edge stays under his chin */
+  left: max(calc(8px - var(--room)), -16%);
+  bottom: 0;
+  width: 60%;
+  display: grid;
+  gap: 0.3em;
+  padding: 0.6em 0.8em 0.7em;
+  background: #fffaf0;
+  color: var(--ink);
+  border: 3px solid var(--ink);
+  border-radius: 6px;
+  box-shadow: 0 6px 0 var(--ink), 0 18px 30px rgba(6, 0, 20, 0.45);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: clamp(9px, calc(var(--S) * 0.03), 14px);
+  line-height: 1.2;
+  pointer-events: none;
+  transform-origin: 70% 100%;
+}
+/* the long clause + the fine print only where there's room for them (beside him) */
+.cms-contract:not(.cms-contract--side) :is(.cms-contract__extra, small) {
+  display: none;
+}
+/*
+ * Side layout: held out beside him, right under his pointing finger ("sign this").
+ * --room = space between the stage edge and his box; the contract shrinks to fit it rather than cover him.
+ */
+.cms-contract--side {
+  --cw: min(max(52%, 150px), calc(var(--room) - 16px + 10%));
+  /* behind him, so the pointing mitten lands on it */
+  z-index: -1;
+  width: var(--cw);
+  left: max(calc(16px - var(--room)), calc(6% - var(--cw)));
+  bottom: 10%;
+  gap: 0.4em;
+  padding: 0.75em 0.95em 0.85em;
+  font-size: clamp(9px, calc(var(--S) * 0.031), 15px);
+}
+.cms-contract__title {
+  font-family: var(--font-display);
+  font-size: 1.12em;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-align: center;
+  border-bottom: 2px dashed var(--ink);
+  padding-bottom: 0.3em;
+}
+.cms-contract__title small {
+  display: block;
+  font-size: 0.62em;
+  letter-spacing: 0.14em;
+  color: var(--grape-600);
+}
+.cms-contract ol {
+  margin: 0;
+  padding-left: 1.3em;
+}
+.cms-contract__sign {
+  font-family: var(--font-marker);
+  font-weight: 400;
+  color: var(--grape-600);
+}
+.cms-contract__sign i {
+  display: inline-block;
+  width: 60%;
+  border-bottom: 2px solid var(--ink);
+  font-style: normal;
+}
+
+/* ---------- Dock ---------- */
+.cms-dock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 66px;
+}
+.cms-dock__end {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.cms .cms-ask {
+  font-size: clamp(1rem, 2.2vw, 1.4rem);
+}
+.cms-ask__label {
+  display: inline-block;
+}
+.cms-ask--jitter .bb__face {
+  animation: bubble-jitter 0.14s steps(2) infinite;
+}
+.cms .cms-replay .bb__face {
+  min-height: 52px;
+}
+/* icon-only replay (phones, and laptops where the music pill needs the room) */
+.cms .cms-replay--icon .bb__face {
+  gap: 0;
+  padding-inline: 0.9em;
+}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 599px) {
+  .cms-panel {
+    gap: 7px;
+    padding: 6px 10px 8px 7px;
+    border-radius: 14px;
+  }
+  .cms-panel__icon {
+    width: 22px;
+    height: 22px;
+  }
+  .cms-hud .meter__top {
+    font-size: 0.68rem;
+  }
+  .cms .cms-ask {
+    font-size: clamp(0.92rem, 4.4vw, 1.1rem);
+  }
+}
+@media (max-width: 599px) and (max-height: 720px) {
+  .cms .shell__kicker {
+    display: none;
+  }
+  .cms-bubblepos .bubble {
+    padding: 11px 15px 12px;
+    font-size: 0.95rem;
+  }
+  .cms-bubblepos .bubble--i3 {
+    font-size: 0.98rem;
+  }
+}
+@media (max-width: 419px) {
+  .cms-panel__icon {
+    display: none;
+  }
+  .cms-panel {
+    padding-left: 10px;
+  }
+}
+/*
+ * Landscape phones: there's no height to spare. The chapter + title already live in the top bar,
+ * so the big header goes (still readable by screen readers), the HUD and dock slim down,
+ * and the dock drops the music-player clearance (the player is a small disc in the corner here).
+ */
+@media (orientation: landscape) and (max-height: 500px) {
+  .cms .shell__header {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .cms .shell__hud {
+    padding-top: 6px;
+  }
+  .cms-hud {
+    max-width: 640px;
+  }
+  .cms-panel {
+    gap: 8px;
+    padding: 4px 12px 6px 8px;
+    border-radius: 12px;
+    box-shadow: 0 4px 0 var(--ink), 0 8px 16px rgba(6, 0, 20, 0.3);
+  }
+  .cms-panel__icon {
+    width: 22px;
+    height: 22px;
+  }
+  .cms-hud .meter__top {
+    font-size: 0.72rem;
+  }
+  .cms .shell__dock {
+    padding-top: 6px;
+    padding-bottom: calc(10px + var(--safe-bottom));
+  }
+  .cms .cms-ask {
+    font-size: 1rem;
+  }
+  .cms-dock {
+    min-height: 56px;
+  }
+  .cms-bubblepos .bubble {
+    padding: 10px 14px 11px;
+    font-size: 0.92rem;
+  }
+  .cms-bubblepos .bubble--i3 {
+    font-size: 0.98rem;
+  }
+}
+
+.cms-hud .meter__readout {
+  white-space: nowrap;
+}
+.cms-hud .meter__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

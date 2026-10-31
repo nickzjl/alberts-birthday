@@ -1,0 +1,421 @@
+/* =========================================================
+   The giant present
+   ========================================================= */
+.gift {
+  position: relative;
+  width: var(--gs, 300px);
+  height: var(--gs, 300px);
+  transform-origin: 50% 96%;
+  isolation: isolate;
+}
+.gift__defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+.gift__piece {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  max-width: none;
+}
+.gift__panel,
+.gift__lid,
+.gift__bow-part,
+.gift__tag-wrap {
+  position: absolute;
+  inset: 0;
+}
+.gift__lid {
+  z-index: 4;
+  animation: gift-lid-peek 3.6s var(--ease-out) infinite;
+  animation-delay: 1.2s;
+}
+.gift__inside {
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.gift__panel {
+  z-index: 2;
+}
+.gift__leak {
+  position: absolute;
+  z-index: 3;
+  left: 4%;
+  width: 76%;
+  top: 31%;
+  height: 6%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 50%, #fff 0%, rgba(233, 224, 255, 0.85) 30%, rgba(139, 77, 255, 0) 72%);
+  opacity: 0;
+  pointer-events: none;
+  animation: gift-leak 3.6s var(--ease-out) infinite;
+  animation-delay: 1.2s;
+}
+.gift__shadow {
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 2%;
+  bottom: 0.5%;
+  height: 9%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 50%, rgba(6, 0, 18, 0.75) 0%, rgba(6, 0, 18, 0.4) 45%, rgba(6, 0, 18, 0) 72%);
+  transform-origin: 50% 50%;
+}
+
+/* glossy sheen sweeping across the front every few seconds */
+.gift__sheen {
+  position: absolute;
+  left: 3%;
+  top: 34%;
+  width: 78%;
+  height: 62%;
+  overflow: hidden;
+  border-radius: 2%;
+  pointer-events: none;
+}
+.gift__sheen::after {
+  content: '';
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  width: 22%;
+  left: -40%;
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.28) 45%, rgba(255, 255, 255, 0) 100%);
+  transform: skewX(-14deg);
+  animation: gift-sheen 5.5s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+/* ribbon bands zip away when untied */
+.gift__band {
+  transform-box: fill-box;
+  transition: transform 0.38s cubic-bezier(0.6, 0, 0.9, 0.4), opacity 0.3s 0.1s;
+}
+.gift__band--v {
+  transform-origin: 50% 100%;
+}
+.gift__band--h {
+  transform-origin: 100% 50%;
+}
+.gift[data-untied] .gift__band--v {
+  transform: scaleY(0);
+  opacity: 0;
+}
+.gift[data-untied] .gift__band--h {
+  transform: scaleX(0);
+  opacity: 0;
+  transition-delay: 0.08s;
+}
+
+/* tag */
+.gift__tag {
+  position: absolute;
+  left: 1%;
+  top: 37%;
+  width: 37%;
+  height: 18%;
+  rotate: -9deg;
+  transform-origin: 84% 50%;
+  animation: gift-tag-swing 3.2s ease-in-out infinite alternate;
+  color: var(--ink);
+}
+.gift__tag-shape {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  overflow: visible;
+  filter: drop-shadow(0 3px 0 rgba(14, 6, 32, 0.45));
+}
+.gift__tag-text {
+  /* inset % = the tag's own width (padding % would use the box's) */
+  position: absolute;
+  inset: 0 19% 0 4%;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  font-family: var(--font-marker);
+  font-size: calc(var(--gs, 300px) * 0.052);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.gift__tag-text small {
+  font-size: 0.62em;
+  opacity: 0.75;
+}
+.gift__tag-heart {
+  position: absolute;
+  left: 9%;
+  top: 6%;
+  font-size: calc(var(--gs, 300px) * 0.045);
+  color: var(--hot);
+  rotate: 14deg;
+}
+
+/* tag on the right-hand side (phones, where Peter overlaps the box's left edge) */
+.gift--tag-right .gift__tag {
+  left: 55%;
+  rotate: 9deg;
+  transform-origin: 16% 50%;
+  animation-name: gift-tag-swing-r;
+}
+.gift--tag-right .gift__tag-shape {
+  scale: -1 1;
+}
+.gift--tag-right .gift__tag-text {
+  inset: 0 4% 0 19%;
+}
+.gift--tag-right .gift__tag-heart {
+  left: auto;
+  right: 9%;
+}
+@keyframes gift-tag-swing-r {
+  from {
+    rotate: 12deg;
+  }
+  to {
+    rotate: 5deg;
+  }
+}
+
+/* light rays + bloom (revealed when the lid launches) */
+.gift__rays,
+.gift__bloom {
+  position: absolute;
+  z-index: -1;
+  left: 49%;
+  top: 32%;
+  pointer-events: none;
+  opacity: 0;
+  translate: -50% -50%;
+}
+.gift__rays {
+  width: 340%;
+  aspect-ratio: 1;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 255, 255, 0.55) 0deg 5deg, rgba(201, 179, 255, 0) 5deg 15deg);
+  mask-image: radial-gradient(circle, #000 4%, rgba(0, 0, 0, 0.6) 22%, transparent 56%);
+  -webkit-mask-image: radial-gradient(circle, #000 4%, rgba(0, 0, 0, 0.6) 22%, transparent 56%);
+  scale: 0.2;
+  transition: opacity 0.4s var(--ease-out), scale 0.9s var(--ease-spring);
+}
+.gift__bloom {
+  width: 230%;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(233, 224, 255, 0.7) 12%, rgba(139, 77, 255, 0.35) 32%, rgba(139, 77, 255, 0) 62%);
+  scale: 0.3;
+  transition: opacity 0.35s var(--ease-out), scale 0.7s var(--ease-out);
+}
+
+/* ---------- phases ---------- */
+.gift--idle .gift__panel:first-of-type {
+  /* nothing */
+}
+.gift--excited .gift__lid,
+.gift--excited .gift__leak {
+  animation-duration: 1.5s;
+  animation-delay: 0s;
+}
+.gift--rumble,
+.gift--untied {
+  animation: gift-rumble 0.09s steps(2) infinite;
+}
+.gift--rumble .gift__lid {
+  animation: gift-lid-rattle 0.16s steps(2) infinite;
+}
+.gift--rumble .gift__leak,
+.gift--untied .gift__leak {
+  animation: gift-leak-hard 0.16s steps(2) infinite;
+}
+.gift--untied .gift__lid {
+  animation: none;
+  translate: 0 -2%;
+}
+.gift--launched .gift__lid,
+.gift--unfolded .gift__lid,
+.gift--gone .gift__lid,
+.gift--launched .gift__leak,
+.gift--unfolded .gift__leak,
+.gift--gone .gift__leak {
+  animation: none;
+}
+.gift--launched .gift__leak,
+.gift--unfolded .gift__leak,
+.gift--gone .gift__leak {
+  opacity: 0;
+}
+.gift--launched .gift__inside,
+.gift--unfolded .gift__inside {
+  opacity: 1;
+}
+.gift--launched .gift__rays,
+.gift--unfolded .gift__rays {
+  opacity: 1;
+  scale: 1;
+}
+.gift--launched .gift__rays {
+  animation: gift-rays-spin 14s linear infinite;
+}
+.gift--unfolded .gift__rays {
+  animation: gift-rays-spin 14s linear infinite;
+}
+.gift--launched .gift__bloom,
+.gift--unfolded .gift__bloom {
+  opacity: 1;
+  scale: 1;
+}
+.gift--gone {
+  opacity: 0;
+  transition: opacity 1.2s var(--ease-out);
+}
+.gift--gone .gift__inside {
+  opacity: 1;
+}
+.gift--gone .gift__rays,
+.gift--gone .gift__bloom {
+  opacity: 0;
+  transition: opacity 1s var(--ease-out);
+}
+.gift--unfolded .gift__sheen,
+.gift--launched .gift__sheen,
+.gift--gone .gift__sheen,
+.gift--gone .gift__tag {
+  display: none;
+}
+
+@keyframes gift-lid-peek {
+  0%,
+  70%,
+  100% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  74% {
+    translate: 0 -5%;
+    rotate: -2.5deg;
+  }
+  79% {
+    translate: 0 -1.5%;
+    rotate: 2deg;
+  }
+  83% {
+    translate: 0 -4%;
+    rotate: -1deg;
+  }
+  88% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+}
+@keyframes gift-leak {
+  0%,
+  70%,
+  92%,
+  100% {
+    opacity: 0;
+  }
+  74%,
+  83% {
+    opacity: 0.95;
+  }
+  79% {
+    opacity: 0.4;
+  }
+}
+@keyframes gift-leak-hard {
+  0% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes gift-lid-rattle {
+  0% {
+    translate: 0 -3%;
+    rotate: -2deg;
+  }
+  100% {
+    translate: 0 -1%;
+    rotate: 2deg;
+  }
+}
+@keyframes gift-rumble {
+  0% {
+    translate: -1.5% 0;
+    rotate: -1.4deg;
+  }
+  100% {
+    translate: 1.5% -0.8%;
+    rotate: 1.4deg;
+  }
+}
+@keyframes gift-sheen {
+  0%,
+  70% {
+    transform: translateX(0) skewX(-14deg);
+  }
+  100% {
+    transform: translateX(700%) skewX(-14deg);
+  }
+}
+@keyframes gift-tag-swing {
+  from {
+    rotate: -12deg;
+  }
+  to {
+    rotate: -5deg;
+  }
+}
+@keyframes gift-rays-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+/* the "something's inside" body hop rides on the rig wrapper */
+.pt-gift-rig {
+  transform-origin: 50% 96%;
+}
+.pt-gift-rig.is-idle {
+  animation: gift-hop 3.6s var(--ease-out) infinite;
+  animation-delay: 1.2s;
+}
+.pt-gift-rig.is-excited {
+  animation: gift-hop 1.5s var(--ease-out) infinite;
+}
+@keyframes gift-hop {
+  0%,
+  70%,
+  100% {
+    scale: 1 1;
+    translate: 0 0;
+  }
+  72% {
+    scale: 1.04 0.95;
+    translate: 0 0;
+  }
+  76% {
+    scale: 0.97 1.04;
+    translate: 0 -3%;
+  }
+  80% {
+    scale: 1.02 0.98;
+    translate: 0 0;
+  }
+  84% {
+    scale: 0.99 1.01;
+    translate: 0 -1%;
+  }
+  88% {
+    scale: 1 1;
+    translate: 0 0;
+  }
+}
